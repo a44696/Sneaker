@@ -87,6 +87,10 @@ const ProductDetails: React.FC = () => {
   
   return (
     <div className="container mx-auto p-4">
+      {/* Breadcrumb */}
+      <div className="text-sm text-gray-500 mb-4">
+        <span className="text-gray-400">Home</span> &gt; <span className="font-semibold">{product.name}</span>
+      </div>
       <div className="flex">
         <div className="w-1/2">
           <img
