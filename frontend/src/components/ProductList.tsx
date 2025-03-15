@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";  // Import useNavigate
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
+import LeftsideBar from "./Layout/LeftsideBar";
 
 interface Product {
   id: number;
@@ -20,6 +21,8 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [likedProducts, setLikedProducts] = useState<number[]>([]); // State để theo dõi các sản phẩm đã thích
+
+  
   const navigate = useNavigate();  // Khởi tạo navigate
 
   const fetchProducts = async () => {
@@ -46,7 +49,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, search]);
+  }, [page, search,]);
 
   // Hàm điều hướng khi click vào sản phẩm
   const handleProductClick = (id: number) => {
@@ -62,23 +65,13 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
     );
   };
 
+ 
+  
+
   return (
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-6 gap-4"> {/* Chỉnh số cột thành 6 */}
-        {/* Danh mục bên trái */}
-        <aside className="col-span-1 bg-gray-100 p-4 rounded">
-          <h2 className="text-xl font-bold mb-4">Danh mục</h2>
-          <ul>
-            {['Nike', 'Adidas', 'Jordan', 'Puma', 'Yeezy'].map((brand) => (
-              <li key={brand} className="mb-2">
-                <button className="text-blue-600 hover:underline" onClick={() => setSearch(brand)}>
-                  {brand}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-
+        <LeftsideBar/>
         {/* Danh sách sản phẩm */}
         <main className="col-span-5"> {/* Chỉnh lại cột sản phẩm */}
           <div className="relative">

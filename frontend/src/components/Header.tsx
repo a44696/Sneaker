@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaHeart, FaShoppingCart, FaSearch } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   search: string;
@@ -10,16 +10,17 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   // Trạng thái để theo dõi số lượt thích
   const [likedCount, setLikedCount] = useState(0);
-
+  const navigate = useNavigate();
   // Hàm xử lý khi nhấn vào biểu tượng yêu thích
   const handleLikeClick = () => {
     setLikedCount(likedCount + 1); // Tăng số lượt thích lên 1
   };
 
   const handleSearchClick = () => {
-    // Khi nhấn vào biểu tượng tìm kiếm, bạn có thể thực hiện hành động tìm kiếm
-    
-    // Bạn có thể thực hiện gọi API hoặc xử lý tìm kiếm tại đây
+    if (search.trim()) {
+      console.log("Searching for:", search);
+      navigate(`/search-product?query=${search}`);
+    }
   };
 
   return (
@@ -66,9 +67,13 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
               type="text"
               placeholder="Search for products, categories or brands..."
               className="ml-2 bg-transparent w-full outline-none"
-              value={search} // Gán giá trị của search vào input
-              onChange={(e) => setSearch(e.target.value)} // Cập nhật giá trị tìm kiếm
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearchClick()}
             />
+            <button onClick={handleSearchClick}>
+              <FaSearch className="text-gray-500" />
+            </button>
           </div>
 
           {/* Account and Cart */}
