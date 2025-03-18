@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FaShieldAlt, FaShoppingCart, FaWallet } from "react-icons/fa";
-import { useParams } from "react-router-dom"; // Import useParams để lấy params từ URL
+import { useNavigate,useParams } from "react-router-dom"; // Import useParams để lấy params từ URL
 import ProductRelative from "./ProductRelative";
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
   price: string;
   image: string;
@@ -19,6 +19,7 @@ const ProductDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1); // Số lượng mặc định là 1
+  const navigate = useNavigate();
 
   const fetchProductDetails = async (productId: string) => { // ✅ Nhận id làm tham số
     setLoading(true);
@@ -53,6 +54,35 @@ const ProductDetails: React.FC = () => {
     }
   }, [id]); // ✅ Theo dõi id
   
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+  
+    try {
+      const response = await fetch("http://localhost:8080/api/cart/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu có đăng nhập
+        },
+        body: JSON.stringify({
+          productId: product._id,
+          quantity: quantity,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
+        navigate("/cart"); // Chuyển hướng đến giỏ hàng
+      } else {
+        console.error("⚠️ Lỗi khi thêm vào giỏ hàng:", data.message);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi kết nối API:", error);
+    }
+  };
 
   // Hàm tăng số lượng
   const increaseQuantity = () => {
@@ -143,7 +173,7 @@ const ProductDetails: React.FC = () => {
             </button>
           </div>
           <div className="flex">
-            <button className="p-3 bg-green-500 text-white rounded-md flex">
+            <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />Add To Cart
             </button>
             <button className="p-3 mx-5 bg-black text-white rounded-md flex">

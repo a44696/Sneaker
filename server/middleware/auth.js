@@ -1,36 +1,40 @@
 import jwt from 'jsonwebtoken'
 
-const auth = async(request,response,next)=>{
+const auth = async (request, response, next) => {
     try {
-        const token = request.cookies.accessToken || request?.headers?.authorization?.split(" ")[1]
-       
-        if(!token){
-            return response.status(401).json({
-                message : "Provide token"
-            })
+        // Bỏ qua kiểm tra token nếu API là /api/cart/create
+        if (request.path === "/api/cart/create") {
+            return next();
         }
 
-        const decode = await jwt.verify(token,process.env.SECRET_KEY_ACCESS_TOKEN)
+        const token = request.cookies.accessToken || request?.headers?.authorization?.split(" ")[1];
 
-        if(!decode){
+        if (!token) {
             return response.status(401).json({
-                message : "unauthorized access",
-                error : true,
-                success : false
-            })
+                message: "Provide token"
+            });
         }
 
-        request.userId = decode.id
+        const decode = await jwt.verify(token, process.env.SECRET_KEY_ACCESS_TOKEN);
 
-        next()
+        if (!decode) {
+            return response.status(401).json({
+                message: "unauthorized access",
+                error: true,
+                success: false
+            });
+        }
+
+        request.userId = decode.id;
+        next();
 
     } catch (error) {
         return response.status(500).json({
-            message : "You have not login",///error.message || error,
-            error : true,
-            success : false
-        })
+            message: "You have not login",
+            error: true,
+            success: false
+        });
     }
 }
 
-export default auth
+export default auth;
