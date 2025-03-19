@@ -18,8 +18,8 @@ const App = () => {
   const [search, setSearch] = useState("");
   return (
     <Routes>
-      <Route path="/auth" element={<AuthPage />} />
-      <Route path="/signin" element={<SignInPage/>} />
+      
+      
       <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Thêm route cho Forgot Password */}
       <Route path="/verify-otp" element={<VerifyOtpPage />} /> {/* Thêm route cho Verify OTP */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -28,9 +28,9 @@ const App = () => {
         <Route index element={<ProductList search={search} setSearch={setSearch}/>} />
         <Route path="/search-product" element={<SearchResults search={search} />} />
         <Route path="/product-details/:id" element={<ProductDetails />} />
-
+        <Route path="/auth" element={<AuthPage />} />
         
-
+        <Route path="/signin" element={<SignInPage/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<CheckOutList />} />
 
