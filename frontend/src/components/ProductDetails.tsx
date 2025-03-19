@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaShieldAlt, FaShoppingCart, FaWallet } from "react-icons/fa";
-import { useNavigate,useParams } from "react-router-dom"; // Import useParams để lấy params từ URL
+import { useNavigate, useParams } from "react-router-dom"; // Import useParams để lấy params từ URL
 import ProductRelative from "./ProductRelative";
 
 interface Product {
@@ -52,8 +52,7 @@ const ProductDetails: React.FC = () => {
     if (id) {
       fetchProductDetails(id);
     }
-  }, [id]); // ✅ Theo dõi id
-  
+  }, [id]); 
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -74,13 +73,13 @@ const ProductDetails: React.FC = () => {
       const data = await response.json();
   
       if (data.success) {
-        console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
+        console.log(" Thêm vào giỏ hàng thành công!", data.cart);
         navigate("/cart"); // Chuyển hướng đến giỏ hàng
       } else {
-        console.error("⚠️ Lỗi khi thêm vào giỏ hàng:", data.message);
+        console.error(" Lỗi khi thêm vào giỏ hàng:", data.message);
       }
     } catch (error) {
-      console.error("❌ Lỗi kết nối API:", error);
+      console.error(" Lỗi kết nối API:", error);
     }
   };
 
@@ -96,6 +95,14 @@ const ProductDetails: React.FC = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
     }
+  };
+
+  // Hàm xử lý "Buy Now"
+  const handleBuyNow = () => {
+    if (!product) return;
+  
+    // Chuyển hướng tới trang CheckOutList và truyền thông tin sản phẩm qua query params
+    navigate(`/checkout?productId=${product._id}&quantity=${quantity}`);
   };
 
   if (loading) {
@@ -176,7 +183,7 @@ const ProductDetails: React.FC = () => {
             <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />Add To Cart
             </button>
-            <button className="p-3 mx-5 bg-black text-white rounded-md flex">
+            <button onClick={handleBuyNow} className="p-3 mx-5 bg-black text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />
               Buy Now
             </button>
