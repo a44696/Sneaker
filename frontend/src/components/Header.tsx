@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUser, FaHeart, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -10,7 +10,19 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   // Trạng thái để theo dõi số lượt thích
   const [likedCount, setLikedCount] = useState(0);
+  const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const navigate = useNavigate();
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [localStorage.getItem("user")]); // Theo dõi sự thay đổi trong localStorage
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Xóa thông tin đăng nhập
+    setUser(null);
+    navigate("/auth");
+  };
   // Hàm xử lý khi nhấn vào biểu tượng yêu thích
   const handleLikeClick = () => {
     setLikedCount(likedCount + 1); // Tăng số lượt thích lên 1
@@ -82,9 +94,19 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
             <a href="#" className="flex items-center gap-1 hover:text-gray-900" onClick={handleSearchClick}>
               <FaSearch className="text-gray-500" />
             </a>
-            <a href="#" className="flex items-center gap-3 hover:text-gray-900">
-              <FaUser /> Sign In <br className="font-bold" /> Account
-            </a>
+            {user ? (
+              <div className="relative group">
+                <img src={user.avatar || "/default-avatar.png"} alt="User Avatar" className="w-8 h-8 rounded-full cursor-pointer" />
+                <div className="hidden group-hover:block absolute right-0 bg-white shadow-md rounded-md w-40 py-2">
+                  <p className="px-4 py-2 text-gray-700">{user.name}</p>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+                </div>
+              </div>
+            ) : (
+              <Link to="/auth" className="flex items-center gap-2 hover:text-gray-900">
+                <FaUser /> Sign Up / Login
+              </Link>
+            )}
             {/* Biểu tượng yêu thích với số lượt thích */}
             <a href="#" className="relative hover:text-gray-900" onClick={handleLikeClick}>
               <FaHeart />
