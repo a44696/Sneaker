@@ -11,6 +11,7 @@ import categoryRouter from './route/category.route.js'
 import uploadRouter from './route/upload.router.js'
 import subCategoryRouter from './route/subCategory.route.js'
 import productRouter from './route/product.route.js'
+import cartRouter from './route/cart.route.js'
 
 const app = express()
 app.use(cors({
@@ -28,7 +29,7 @@ app.use(helmet({
     crossOriginResourcePolicy : false
 }))
 
-const PORT = 8080 || process.env.PORT 
+const PORT = process.env.PORT || 8080;
 
 app.get("/",(request,response)=>{
     ///server to client
@@ -42,6 +43,8 @@ app.use("/api/category",categoryRouter)
 app.use("/api/file",uploadRouter)
 app.use("/api/subcategory",subCategoryRouter)
 app.use("/api/products",productRouter)
+app.use("/api/cart", cartRouter);
+
 
 connectDB().then(()=>{
     app.listen(PORT,()=>{

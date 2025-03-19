@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import ProductList from "./components/ProductList";
 import ProductDetails from "./components/ProductDetails";
 import Layout from "./components/Layout/Layout";
+import Cart from "./page/cart/Cart";
+import CheckOutList from "./page/checkout/CheckOutList";
 import { useState } from "react";
 import SearchResults from "./page/search/SearchResults";
 import AuthPage from "./page/auth/AuthPage";
@@ -26,7 +28,12 @@ const App = () => {
         <Route index element={<ProductList search={search} setSearch={setSearch}/>} />
         <Route path="/search-product" element={<SearchResults search={search} />} />
         <Route path="/product-details/:id" element={<ProductDetails />} />
+
         
+
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<CheckOutList />} />
+
       </Route>
       
     </Routes>
