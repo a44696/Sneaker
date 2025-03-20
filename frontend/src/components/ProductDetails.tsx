@@ -52,17 +52,18 @@ const ProductDetails: React.FC = () => {
     if (id) {
       fetchProductDetails(id);
     }
-  }, [id]); 
+  }, [id]); // ✅ Theo dõi id
+  
 
   const handleAddToCart = async () => {
     if (!product) return;
-  
+    console.log(localStorage.getItem("accessToken"))
     try {
       const response = await fetch("http://localhost:8080/api/cart/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu có đăng nhập
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Nếu có đăng nhập
         },
         body: JSON.stringify({
           productId: product._id,
@@ -73,13 +74,13 @@ const ProductDetails: React.FC = () => {
       const data = await response.json();
   
       if (data.success) {
-        console.log(" Thêm vào giỏ hàng thành công!", data.cart);
+        console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
         navigate("/cart"); // Chuyển hướng đến giỏ hàng
       } else {
-        console.error(" Lỗi khi thêm vào giỏ hàng:", data.message);
+        console.error("⚠️ Lỗi khi thêm vào giỏ hàng:", data.message);
       }
     } catch (error) {
-      console.error(" Lỗi kết nối API:", error);
+      console.error("❌ Lỗi kết nối API:", error);
     }
   };
 
@@ -95,14 +96,6 @@ const ProductDetails: React.FC = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
     }
-  };
-
-  // Hàm xử lý "Buy Now"
-  const handleBuyNow = () => {
-    if (!product) return;
-  
-    // Chuyển hướng tới trang CheckOutList và truyền thông tin sản phẩm qua query params
-    navigate(`/checkout?productId=${product._id}&quantity=${quantity}`);
   };
 
   if (loading) {
@@ -183,7 +176,7 @@ const ProductDetails: React.FC = () => {
             <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />Add To Cart
             </button>
-            <button onClick={handleBuyNow} className="p-3 mx-5 bg-black text-white rounded-md flex">
+            <button className="p-3 mx-5 bg-black text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />
               Buy Now
             </button>

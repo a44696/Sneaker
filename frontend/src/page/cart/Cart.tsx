@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   _id: string;
@@ -16,7 +17,7 @@ interface CartItem {
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const navigate = useNavigate;
   // ✅ Lấy danh sách giỏ hàng từ API
   const fetchCart = async () => {
     try {
@@ -24,7 +25,7 @@ const Cart: React.FC = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
 
@@ -57,7 +58,7 @@ const Cart: React.FC = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`!,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`!,
         },
         body: JSON.stringify({ _id: itemId, qty: newQuantity }),
       });
@@ -80,7 +81,7 @@ const Cart: React.FC = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({ _id: itemId }),
       });

@@ -28,9 +28,9 @@ const App = () => {
         <Route index element={<ProductList search={search} setSearch={setSearch}/>} />
         <Route path="/search-product" element={<SearchResults search={search} />} />
         <Route path="/product-details/:id" element={<ProductDetails />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage />} />
         
-        <Route path="/signin" element={<SignInPage/>} />
+        <Route path="/signup" element={<SignInPage/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<CheckOutList />} />
 

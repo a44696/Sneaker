@@ -124,6 +124,7 @@ export async function loginController(request,response){
                 message : "User not register",
                 error : true,
                 success : false
+                
             })
         }
 
@@ -167,7 +168,13 @@ export async function loginController(request,response){
             success : true,
             data : {
                 accesstoken,
-                refreshToken
+                refreshToken,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.avatar
+                }
             }
         })
 

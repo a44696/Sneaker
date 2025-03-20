@@ -1,42 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from 'axios';
 const SignInPage: React.FC = () => {
   const [isRegister, setIsRegister] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("customer");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const handleRegister = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/user/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, role }),
-      });
+        setError(null);
+        setMessage(null);
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Register failed");
-
-      localStorage.setItem("token", data.token);
-      navigate("/");
-      window.location.reload();
-    } catch (err: any) {
-      setError(err.message);
+        const response = await axios.post('http://localhost:8080/api/user/register', { name, email, password });
+        setMessage('Registration successful! Please check your email to verify your account.');
+    } catch (err) {
+        setError(err.response?.data?.message || 'Registration failed');
     }
-  };
+};
 
   return (
     <div className="flex justify-center items-center h-screen bg-white">
       <div className="w-[400px]">
         <div className="flex justify-center mb-6 space-x-4">
           <button
-            onClick={() => { setIsRegister(false); navigate("/auth"); }}
+            onClick={() => { setIsRegister(false); navigate("/login"); }}
             className={`text-lg font-semibold ${!isRegister ? "text-black" : "text-gray-400"}`}
           >
             Login
@@ -55,7 +47,7 @@ const SignInPage: React.FC = () => {
 
         {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-sm mb-1">Username *</label>
             <input

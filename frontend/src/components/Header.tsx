@@ -13,15 +13,19 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    
+    
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      setUser({ name: storedUser.name, avatar: storedUser.avatar });
+
     }
   }, [localStorage.getItem("user")]); // Theo dõi sự thay đổi trong localStorage
+  
   const handleLogout = () => {
     localStorage.removeItem("user"); // Xóa thông tin đăng nhập
     setUser(null);
-    navigate("/auth");
+    navigate("/login");
   };
   // Hàm xử lý khi nhấn vào biểu tượng yêu thích
   const handleLikeClick = () => {
@@ -103,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
                 </div>
               </div>
             ) : (
-              <Link to="/auth" className="flex items-center gap-2 hover:text-gray-900">
+              <Link to="/login" className="flex items-center gap-2 hover:text-gray-900">
                 <FaUser /> Sign Up / Login
               </Link>
             )}
