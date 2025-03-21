@@ -12,14 +12,15 @@ import ForgotPasswordPage from "./page/auth/ForgotPasswordPage";
 import VerifyOtpPage from "./page/auth/VerifyOtpPage";
 import ResetPasswordPage from "./page/auth/ResetPasswordPage";
 import VerifyEmailPage from "./page/auth/VerifyEmailPage";
-
+import Admin from "./admin/admin";
 
 const App = () => {
   const [search, setSearch] = useState("");
   return (
+    <>
     <Routes>
       
-      
+    <Route path="/admin" element={<Admin />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Thêm route cho Forgot Password */}
       <Route path="/verify-otp" element={<VerifyOtpPage />} /> {/* Thêm route cho Verify OTP */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -36,7 +37,7 @@ const App = () => {
 
       </Route>
       
-    </Routes>
+    </Routes></>
   );
 };
 
