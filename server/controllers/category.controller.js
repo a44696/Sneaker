@@ -1,5 +1,4 @@
 import CategoryModel from "../models/category.model.js";
-import SubCategoryModel from "../models/subCategory.model.js";
 import ProductModel from "../models/product.model.js";
 
 export const AddCategoryController = async(request,response)=>{
@@ -94,11 +93,7 @@ export const deleteCategoryController = async(request,response)=>{
     try {
         const { _id } = request.body 
 
-        const checkSubCategory = await SubCategoryModel.find({
-            category : {
-                "$in" : [ _id ]
-            }
-        }).countDocuments()
+
 
         const checkProduct = await ProductModel.find({
             category : {
@@ -129,5 +124,26 @@ export const deleteCategoryController = async(request,response)=>{
             success : false,
             error : true
        }) 
+    }
+}
+export const getCategoryDetails = async(request,response)=>{
+    try {
+        const { id } = request.body 
+
+        const category = await CategoryModel.findOne({ _id : id })
+
+        return response.json({
+            message : "category details",
+            data :category,
+            error : false,
+            success : true
+        })
+
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
     }
 }

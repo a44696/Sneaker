@@ -1,10 +1,11 @@
 import { Router } from 'express'
-import {refreshToken, verifyForgotPasswordOtp, forgotPasswordController, updateUserDetails, uploadAvatar, logoutController, registerUserController, verifyEmailController, loginController, resetpassword} from '../controllers/user.controller.js'
+import {getUserController, getUserDetails, refreshToken, verifyForgotPasswordOtp, forgotPasswordController, updateUserDetails, uploadAvatar, logoutController, registerUserController, verifyEmailController, loginController, resetpassword} from '../controllers/user.controller.js'
 import auth from '../middleware/auth.js'
 import upload from '../middleware/multer.js'
 
 const userRouter = Router()
-
+userRouter.post('/get',getUserController)
+userRouter.post('/get-user-details',getUserDetails)
 userRouter.post('/register',registerUserController)
 userRouter.post('/verify-email',verifyEmailController)
 userRouter.post('/login',loginController)

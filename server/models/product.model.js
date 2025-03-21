@@ -14,12 +14,6 @@ const productSchema = new mongoose.Schema({
             ref : 'category'
         }
     ],
-    subCategory : [
-        {
-            type : mongoose.Schema.ObjectId,
-            ref : 'subCategory'
-        }
-    ],
     unit : {
         type : String,
         default : ""
@@ -30,7 +24,7 @@ const productSchema = new mongoose.Schema({
     },
     price : {
         type : Number,
-        defualt : null
+        default : null
     },
     discount : {
         type : Number,

@@ -1,81 +1,98 @@
 import ProductModel from "../models/product.model.js";
 
-export const createProductController = async (request, response) => {
+export const createProductController = async(request,response)=>{
     try {
-        const products = Array.isArray(request.body) ? request.body : [request.body];
+        const { 
+            name ,
+            image ,
+            category ,
+            unit,
+            stock,
+            price,
+            discount = 0,
+            description,
+            more_details,
+        } = request.body 
 
-        // Kiểm tra dữ liệu đầu vào của từng sản phẩm
-        for (const productData of products) {
-            const { name, image, category, subCategory, unit, stock, price, discount, description } = productData;
-
-            if (!name || !image?.length || !category?.length || !subCategory?.length || !unit || stock === undefined || price === undefined || discount === undefined || !description) {
-                return response.status(400).json({
-                    message: "Enter required fields",
-                    error: true,
-                    success: false
-                });
-            }
+        if(!name || !stock  || !unit || !price || !description ){
+            return response.status(400).json({
+                message : "Enter required fields",
+                error : true,
+                success : false
+            })
         }
 
-        // Thêm sản phẩm vào DB
-        const savedProducts = await ProductModel.insertMany(products);
+        const product = new ProductModel({
+            name ,
+            image ,
+            category,
+            unit,
+            stock,
+            price,
+            discount,
+            description,
+            more_details,
+        })
+        const saveProduct = await product.save()
 
         return response.json({
-            message: `${savedProducts.length} Product(s) Created Successfully`,
-            data: savedProducts,
-            error: false,
-            success: true
-        });
+            message : "Product Created Successfully",
+            data : saveProduct,
+            error : false,
+            success : true
+        })
 
     } catch (error) {
         return response.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
+            message : error.message || error,
+            error : true,
+            success : false
+        })
     }
-};
+}
 
-
-export const getProductController = async (request, response) => {
+export const getProductController = async(request,response)=>{
     try {
-        let { page, limit, search } = request.body 
         
-        page = parseInt(page);
-        limit = parseInt(limit);
-        const skip = (page - 1) * limit;
+        let { page, limit, search } = request.body 
 
-        const [data, totalCount] = await Promise.all([
-            ProductModel.find()
-                .sort({ createdAt: -1 }) 
-                .skip(skip)
-                .limit(limit)
-                .populate("category subCategory")
-                .lean(),
-            ProductModel.countDocuments()
-        ]);
+        if(!page){
+            page = 1
+        }
+
+        if(!limit){
+            limit = 10
+        }
+
+        const query = search ? {
+            $text : {
+                $search : search
+            }
+        } : {}
+
+        const skip = (page - 1) * limit
+
+        const [data,totalCount] = await Promise.all([
+            ProductModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit).populate('category'),
+            ProductModel.countDocuments(query)
+        ])
 
         return response.json({
-            message: "Product data",
-            error: false,
-            success: true,
-            totalCount,
-            totalNoPage: Math.ceil(totalCount / limit),
-            data: data.map(item => ({
-                ...item,
-                id: item._id.toString(),
-            })),
-        });
-
+            message : "Product data",
+            error : false,
+            success : true,
+            totalCount : totalCount,
+            totalNoPage : Math.ceil( totalCount / limit),
+            data : data
+        })
     } catch (error) {
         return response.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false,
-        });
+            message : error.message || error,
+            error : true,
+            success : false
+        })
     }
-};
-
+}
 
 export const getProductByCategory = async(request,response)=>{
     try {
@@ -108,39 +125,20 @@ export const getProductByCategory = async(request,response)=>{
     }
 }
 
-  
-export const getProductByCategoryAndSubCategory  = async(request,response)=>{
+
+
+export const getProductDetails = async(request,response)=>{
     try {
-        const { categoryId,subCategoryId,page=1,limit=10 } = request.body
+        const { id } = request.body 
 
-        if(!categoryId || !subCategoryId){
-            return response.status(400).json({
-                message : "Provide categoryId and subCategoryId",
-                error : true,
-                success : false
-            })
-        }
+        const product = await ProductModel.findOne({ _id : id })
 
-        const query = {
-            category : { $in : categoryId  },
-            subCategory : { $in : subCategoryId }
-        }
-
-        const skip = (page - 1) * limit
-
-        const [data,dataCount] = await Promise.all([
-            ProductModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit),
-            ProductModel.countDocuments(query)
-        ])
 
         return response.json({
-            message : "Product list",
-            data : data,
-            totalCount : dataCount,
-            page : page,
-            limit : limit,
-            success : true,
-            error : false
+            message : "product details",
+            data : product,
+            error : false,
+            success : true
         })
 
     } catch (error) {
@@ -152,50 +150,20 @@ export const getProductByCategoryAndSubCategory  = async(request,response)=>{
     }
 }
 
-export const getProductDetails = async(request, response) => {
-    try {
-      const { productId } = request.body; // Lấy productId từ body
-      
-      const product = await ProductModel.findById(productId);  // Tìm sản phẩm theo ID
-  
-      if (!product) {
-        return response.status(404).json({
-          message: "Product not found",
-          error: true,
-          success: false
-        });
-      }
-  
-      return response.json({
-        data: product,
-        success: true,
-        error: false,
-      });
-  
-    } catch (error) {
-      return response.status(500).json({
-        message: error.message || error,
-        error: true,
-        success: false
-      });
-    }
-  };
-
-
 //update product
 export const updateProductDetails = async(request,response)=>{
     try {
-        const { productId } = request.body;
+        const { id } = request.body 
 
-        if(!productId){
+        if(!id){
             return response.status(400).json({
-                message : "provide product productId",
+                message : "provide product id",
                 error : true,
                 success : false
             })
         }
 
-        const updateProduct = await ProductModel.updateOne({ productId : productId },{
+        const updateProduct = await ProductModel.updateOne({ _id : id },{
             ...request.body
         })
 
@@ -218,9 +186,9 @@ export const updateProductDetails = async(request,response)=>{
 //delete product
 export const deleteProductDetails = async(request,response)=>{
     try {
-        const { productId } = request.body;
+        const { _id } = request.body 
 
-        if(!productId){
+        if(!_id){
             return response.status(400).json({
                 message : "provide _id ",
                 error : true,
@@ -228,7 +196,7 @@ export const deleteProductDetails = async(request,response)=>{
             })
         }
 
-        const deleteProduct = await ProductModel.deleteOne({_id : productId })
+        const deleteProduct = await ProductModel.deleteOne({_id : _id })
 
         return response.json({
             message : "Delete successfully",
@@ -295,6 +263,37 @@ export const searchProduct = async (request, response) => {
             limit: limit,
         });
 
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false,
+        });
+    }
+};
+export const getProductsByCategories = async (request, response) => {
+    try {
+        const { categoryIds } = request.body; // Nhận danh sách ID danh mục từ request.body
+
+        if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
+            return response.status(400).json({
+                message: "Provide a valid list of category IDs",
+                error: true,
+                success: false,
+            });
+        }
+
+        // Tìm sản phẩm thuộc tất cả các danh mục trong danh sách categoryIds
+        const products = await ProductModel.find({
+            category: { $all: categoryIds }, // Sử dụng $all để tìm sản phẩm thuộc tất cả danh mục
+        }).populate("category"); // Populate để lấy thông tin chi tiết danh mục
+
+        return response.json({
+            message: "Filtered products by all categories",
+            data: products,
+            error: false,
+            success: true,
+        });
     } catch (error) {
         return response.status(500).json({
             message: error.message || error,

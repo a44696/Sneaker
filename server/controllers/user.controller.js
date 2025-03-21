@@ -8,7 +8,48 @@ import uploadImageClodinary from '../utils/uploadImageClodinary.js'
 import generatedOtp from '../utils/generatedOtp.js'
 import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
+export const getUserController = async(request,response)=>{
+    try {
+        
+        let { page, limit, search } = request.body 
 
+        if(!page){
+            page = 1
+        }
+
+        if(!limit){
+            limit = 10
+        }
+
+        const query = search ? {
+            $text : {
+                $search : search
+            }
+        } : {}
+
+        const skip = (page - 1) * limit
+
+        const [data,totalCount] = await Promise.all([
+            UserModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit),
+            UserModel.countDocuments(query)
+        ])
+
+        return response.json({
+            message : "User data",
+            error : false,
+            success : true,
+            totalCount : totalCount,
+            totalNoPage : Math.ceil( totalCount / limit),
+            data : data
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
 export async function registerUserController(request,response){
     try {
         const { name, email , password } = request.body
@@ -47,7 +88,7 @@ export async function registerUserController(request,response){
 
         const verifyEmail = await sendEmail({
             sendTo : email,
-            subject : "Verify email from binkeyit",
+            subject : "Verify email from Sneaker Store",
             html : verifyEmailTemplate({
                 name,
                 url : VerifyEmailUrl
@@ -110,7 +151,6 @@ export async function loginController(request,response){
 
         if(!email || !password){
             return response.status(400).json({
-                data: request.body,
                 message : "provide email, password",
                 error : true,
                 success : false
@@ -124,7 +164,6 @@ export async function loginController(request,response){
                 message : "User not register",
                 error : true,
                 success : false
-                
             })
         }
 
@@ -140,7 +179,6 @@ export async function loginController(request,response){
 
         if(!checkPassword){
             return response.status(400).json({
-                data: { user  },
                 message : "Check your password",
                 error : true,
                 success : false
@@ -168,13 +206,7 @@ export async function loginController(request,response){
             success : true,
             data : {
                 accesstoken,
-                refreshToken,
-                user: {
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    avatar: user.avatar
-                }
+                refreshToken
             }
         })
 
@@ -312,7 +344,7 @@ export async function forgotPasswordController(request,response) {
 
         await sendEmail({
             sendTo : email,
-            subject : "Forgot password from Binkeyit",
+            subject : "Forgot password from Sneaker Store",
             html : forgotPasswordTemplate({
                 name : user.name,
                 otp : otp
@@ -505,13 +537,13 @@ export async function refreshToken(request,response){
 }
 
 //get login user details
-export async function userDetails(request,response){
+export async function getUserDetails(request,response){
     try {
-        const userId  = request.userId
+        const { id } = request.body 
 
-        console.log(userId)
+        console.log(id)
 
-        const user = await UserModel.findById(userId).select('-password -refresh_token')
+        const user = await UserModel.findById(id).select('-password -refresh_token')
 
         return response.json({
             message : 'user details',
