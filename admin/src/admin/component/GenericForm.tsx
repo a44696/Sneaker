@@ -24,7 +24,7 @@ const GenericForm = ({ fields, resource }: { fields: any[]; resource: string }) 
             loadCategories();
         }
     }, [resource]);
-
+    
     return (
         <>
             <SimpleForm>

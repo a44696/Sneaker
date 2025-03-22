@@ -1,11 +1,11 @@
-import { List, Datagrid, TextField, NumberField,  DateField, EditButton, DeleteButton, SearchInput, TopToolbar, Pagination, FunctionField } from 'react-admin';
+import { List, Datagrid, TextField, NumberField, ShowButton,  DateField, EditButton, DeleteButton, SearchInput, TopToolbar, Pagination, FunctionField } from 'react-admin';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 interface FieldProps {
     source: string;
     label?: string;
-    type?: 'text' | 'number' | 'date' | 'image';
+    type?: 'text' | 'number' | 'date' | 'image' | 'array';
 }
 
 interface GenericListProps {
@@ -33,6 +33,7 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
     const listFilters = [
         <SearchInput key="search" source="q" alwaysOn placeholder="Search..." />,
     ];
+    
     return (
         <List
             perPage={10}
@@ -70,15 +71,24 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
                             return <TextField key={field.source} source={field.source} label={field.label || field.source} />;
                     }
                 })}
-                <FunctionField
+                
+              <FunctionField
                     label=""
                     sx={{ textAlign: 'center' }}
-                    render={(record) => (
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                            <EditButton record={record} />
-                            <DeleteButton record={record} />
-                        </div>
-                    )}
+                    render={(record) =>{
+                        console.log('Record from GenericList:', record);
+                        return (
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                                {resource === "order" && (
+                                    <ShowButton record={record} />
+                                )
+                                
+                                }
+                                <EditButton record={record} />
+                                <DeleteButton record={record} />
+                            </div>
+                        )
+                    }}
                 />
             </Datagrid>
         </List>

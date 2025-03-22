@@ -68,7 +68,7 @@ export async function CashOnDeliveryOrderController(request, response) {
     }
 }
 
-export async function getOrderDetailsController(request, response) {
+export async function getOrderDetailsbyUserController(request, response) {
     try {
         const userId = request.userId;
 
@@ -156,5 +156,70 @@ export async function createNewOrderController(request, response) {
             error: true,
             success: false,
         });
+    }
+}
+export const getOrderController = async(request,response)=>{
+    try {
+        
+        let { page, limit, search } = request.body 
+
+        if(!page){
+            page = 1
+        }
+
+        if(!limit){
+            limit = 10
+        }
+
+        const query = search ? {
+            $text : {
+                $search : search
+            }
+        } : {}
+
+        const skip = (page - 1) * limit
+
+        const [data,totalCount] = await Promise.all([
+            OrderModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit),
+            OrderModel.countDocuments(query)
+        ])
+
+        return response.json({
+            message : "Order data",
+            error : false,
+            success : true,
+            totalCount : totalCount,
+            totalNoPage : Math.ceil( totalCount / limit),
+            data : data
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+
+export const getOrderDetails = async(request,response)=>{
+    try {
+        const { id } = request.body 
+
+        const order = await OrderModel.findOne({ _id : id })
+
+
+        return response.json({
+            message : "Order details",
+            data : order,
+            error : false,
+            success : true
+        })
+
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
     }
 }

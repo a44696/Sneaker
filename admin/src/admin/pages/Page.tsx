@@ -1,6 +1,6 @@
 import GenericList from '../component/GenericList';
 import { GenericCreate, GenericEdit } from '../component/GenericForm';
-
+import  OrderFormShow  from '../component/orderDetailShow';
 
 const ProductList = () => (
     <GenericList
@@ -83,5 +83,28 @@ const Category = () => (
         ]}
     />
 );
-
-export { ProductList, UserList, UserEdit, Category, ProductEdit, ProductCreate };
+const OrderList = () => (
+    <GenericList
+        resource="order"
+        title="Order"
+        fields={[
+            { source: "userName", label: "Name"},
+            { source: "orderId", label: "OrderId" },
+            { source: "createdAt", label: "Ngày Đặt", type: "date" },
+            { source: "payment_status", label: "Phương thức thanh toán" },
+        ]}
+    />
+);
+const OrderShow = () => (
+    <OrderFormShow
+        resource="order"
+        fields={[
+            { source: "userName", label: "Name"},
+            { source: "orderId", label: "OrderId" },
+            { source: "createdAt", label: "Ngày Đặt", type: "date" },
+            { source: "payment_status", label: "Phương thức thanh toán" },
+            { source: "products", label: "Sản Phẩm", type: "array" },
+        ]}
+    />
+);
+export { ProductList, OrderShow, UserList, UserEdit, Category, ProductEdit, ProductCreate, OrderList };

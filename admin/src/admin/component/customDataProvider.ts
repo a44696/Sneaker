@@ -15,6 +15,17 @@ const fetchCategoryName = async (categoryId: string) => {
         return "Unknown Category";
     }
 };
+const fetchUserName = async (UserId: string) => {
+    try {
+        
+        const response = await axios.post(`${apiUrl}/user/get-user-details`,  { id: UserId } );
+     
+        return response.data?.data?.name || "Unknown user";
+    } catch (error) {
+        console.error(`Failed to fetch user name for ${UserId}`, error);
+        return "Unknown user";
+    }
+};
 const fetchGetList = async (resource: string, params: any) => {
     const { page = 1, perPage = 10 } = params.pagination ?? {};
     const url = `${apiUrl}/${resource}/get`;
@@ -23,11 +34,10 @@ const fetchGetList = async (resource: string, params: any) => {
         const response = await axios.post(url, { page, limit: perPage });
         const json = response.data;
 
-        let dataWithCategoryNames;
+        let customData;
 
         if (resource === "product") {
-            // Chỉ xử lý category nếu resource là "product"
-            dataWithCategoryNames = await Promise.all(
+            customData = await Promise.all(
                 json.data.map(async (item: any) => {
                     const categoryIds = item.category || [];
                     const categoryNames = await Promise.all(
@@ -35,22 +45,32 @@ const fetchGetList = async (resource: string, params: any) => {
                     );
                     return {
                         ...item,
-                        id: item._id || item.id,
+                        id: item._id || item.id || String(Math.random()), // Ensure id always exists
                         category: categoryNames,
                     };
                 })
             );
+        } else if(resource === "order"){
+            customData = await Promise.all(
+                json.data.map(async (item: any) => {
+                    const userId = item.userId || null;
+                    const userName = await fetchUserName(userId);
+                    return {
+                        ...item,
+                        id: item._id || item.id || String(Math.random()), // Ensure id always exists
+                        userName: userName,
+                    };
+                })
+            );
         } else {
-            // Nếu không phải "product", giữ nguyên dữ liệu
-            dataWithCategoryNames = json.data.map((item: any) => ({
+            customData = json.data.map((item: any) => ({
                 ...item,
-                id: item._id || item.id,
+                id: item._id || item.id || String(Math.random()), // Ensure id always exists
             }));
         }
-
         return {
-            data: dataWithCategoryNames,
-            total: json.totalCount,
+            data: customData,
+            total: json.totalCount || customData.length,
             pagination: { page, perPage },
         };
     } catch (error) {
@@ -114,6 +134,36 @@ const searchProduct = async (resource: string, params: any) => {
     }
 };
 
+const fetchGetOne = async (resource: string, params: any) => {
+   
+    try {
+        
+        console.log(`${apiUrl}/${resource}/get-${resource}-details`);
+        let customData;
+        const response = await axios.post(`${apiUrl}/${resource}/get-${resource}-details`, { id: params.id });
+        const json = response.data;
+        if (resource === "order") {
+            const item = json.data;
+            const userId = item.userId || null;
+            const userName = await fetchUserName(userId);
+            customData = {
+                ...item,
+                id: item._id || item.id, // Ensure id always exists
+                userName: userName,
+            };
+        } else {
+            customData = json.data;
+        }
+        return { data: customData };
+        
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || "Failed to fetch resource");
+        } else {
+            throw new Error("An unknown error occurred");
+        }
+    }
+}
 const customDataProvider: DataProvider = {
     ...simpleRestProvider(apiUrl),
 
@@ -123,17 +173,7 @@ const customDataProvider: DataProvider = {
     },
 
     getOne: async (resource, params) => {
-        try {
-            console.log(`${apiUrl}/${resource}/get-${resource}-details`);
-            const response = await axios.post(`${apiUrl}/${resource}/get-${resource}-details`, { id: params.id });
-            return { data: { ...response.data.data, id: response.data.data._id || 0 } };
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                throw new Error(error.response?.data?.message || "Failed to fetch resource");
-            } else {
-                throw new Error("An unknown error occurred");
-            }
-        }
+       return  fetchGetOne(resource, params);
     },
 
     create: async (resource, params) => {
