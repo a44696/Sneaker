@@ -13,14 +13,14 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    
-    
+    const storedUserString = localStorage.getItem("user");
+    const storedUser = storedUserString && storedUserString !== "undefined" ? JSON.parse(storedUserString) : null;
+  
     if (storedUser) {
       setUser({ name: storedUser.name, avatar: storedUser.avatar });
-
     }
-  }, [localStorage.getItem("user")]); // Theo dõi sự thay đổi trong localStorage
+  }, [localStorage.getItem("user")]); 
+  
   
   const handleLogout = () => {
     localStorage.removeItem("user"); // Xóa thông tin đăng nhập
@@ -102,7 +102,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
               <div className="relative group">
                 <img src={user.avatar || "/default-avatar.png"} alt="User Avatar" className="w-8 h-8 rounded-full cursor-pointer" />
                 <div className="hidden group-hover:block absolute right-0 bg-white shadow-md rounded-md w-40 py-2">
-                  <p className="px-4 py-2 text-gray-700">{user.name}</p>
+                  <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">{user.name}</button>
                   <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
                 </div>
               </div>

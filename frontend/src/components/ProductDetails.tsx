@@ -7,27 +7,27 @@ interface Product {
   _id: string;
   name: string;
   price: string;
-  image: string;
+  image: [string];
   description: string;
   stock: number;
   discount: number;  // Thêm thuộc tính discount
 }
 
 const ProductDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Lấy productId từ URL
+  const { id } = useParams<{ id: any }>(); // Lấy productId từ URL
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1); // Số lượng mặc định là 1
   const navigate = useNavigate();
 
-  const fetchProductDetails = async (productId: string) => { // ✅ Nhận id làm tham số
+  const fetchProductDetails = async (id: any) => { // ✅ Nhận id làm tham số
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/products/get-product-details', {
+      const response = await fetch('http://localhost:8080/api/product/get-product-details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId }), // ✅ Truyền id vào body
+        body: JSON.stringify({ id }), // ✅ Truyền id vào body
       });
   
       if (!response.ok) {
@@ -35,6 +35,7 @@ const ProductDetails: React.FC = () => {
       }
   
       const data = await response.json();
+      console.log("🔥 API trả về chi tiết sản phẩm:", data);
       if (data.success) {
         setProduct(data.data);
       } else {
@@ -70,24 +71,27 @@ const ProductDetails: React.FC = () => {
           quantity: quantity,
         }),
       });
-  
+      
       const data = await response.json();
   
       if (data.success) {
         console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
         navigate("/cart"); // Chuyển hướng đến giỏ hàng
       } else {
+        alert(data.message);
         console.error("⚠️ Lỗi khi thêm vào giỏ hàng:", data.message);
       }
     } catch (error) {
       console.error("❌ Lỗi kết nối API:", error);
     }
   };
-
+  
   // Hàm tăng số lượng
   const increaseQuantity = () => {
     if (quantity < (product?.stock || 1)) {
       setQuantity(quantity + 1);
+    }else{
+      alert("Sản phẩm đã hết hàng.");
     }
   };
 
@@ -114,7 +118,7 @@ const ProductDetails: React.FC = () => {
   const discountedPrice = product.discount
     ? (parseFloat(product.price) * (1 - product.discount / 100)).toFixed(2)
     : product.price;
-  
+
   return (
     <div className="container mx-auto p-4">
       {/* Breadcrumb */}
@@ -124,7 +128,7 @@ const ProductDetails: React.FC = () => {
       <div className="flex">
         <div className="w-1/2">
           <img
-            src={product.image}
+            src={product.image[0]}
             alt={product.name}
             className="w-full h-96 object-cover mb-4"
           />

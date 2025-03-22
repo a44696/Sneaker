@@ -206,7 +206,8 @@ export async function loginController(request,response){
             success : true,
             data : {
                 accesstoken,
-                refreshToken
+                refreshToken,
+                user
             }
         })
 
@@ -540,8 +541,6 @@ export async function refreshToken(request,response){
 export async function getUserDetails(request,response){
     try {
         const { id } = request.body 
-
-        console.log(id)
 
         const user = await UserModel.findById(id).select('-password -refresh_token')
 

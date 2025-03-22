@@ -7,7 +7,7 @@ interface CartItem {
     _id: string;
     name: string;
     price: number;
-    image: string;
+    image: [string];
     stock: number;
     discount: number;
   };
@@ -69,7 +69,8 @@ const Cart: React.FC = () => {
 
       // 🔄 Sau khi cập nhật, gọi lại API để lấy dữ liệu mới nhất
       await fetchCart();
-    } catch (error) {
+    } catch (error: any) {
+      alert("Cập nhật số lượng thất bại: " + error.message);
       console.error("Lỗi khi cập nhật số lượng:", error);
     }
   };
@@ -94,7 +95,68 @@ const Cart: React.FC = () => {
       console.error("Lỗi khi xóa sản phẩm:", error);
     }
   };
-
+  const clearCart = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/cart/clear", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Xóa giỏ hàng thất bại");
+      }
+  
+      setCartItems([]); // Cập nhật lại cartItems về mảng rỗng sau khi xóa
+      console.log("🛒 Giỏ hàng đã được xóa thành công.");
+    } catch (error) {
+      console.error("Lỗi khi xóa giỏ hàng:", error);
+      alert("Lỗi khi xóa giỏ hàng sau khi đặt hàng.");
+    }
+  };
+  const createOrder = async () => {
+    const user = localStorage.getItem("user"); // Lấy userId từ localStorage
+    const userId = user ? JSON.parse(user)._id : null;
+    if (!userId) {
+      alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
+      return;
+    }
+  
+    const products = cartItems.map((item) => ({
+      productId: item.productId._id,
+      quantity: item.quantity,
+    }));
+    const totalAmt = cartItems.reduce((sum, item) => {
+      const priceAfterDiscount =
+        item.productId.price * (1 - item.productId.discount / 100);
+      return sum + priceAfterDiscount * item.quantity;
+    }, 0);
+  
+    try {
+      const response = await fetch("http://localhost:8080/api/order/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({ userId, products, totalAmt }), // Truyền userId từ localStorage
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        alert("Đặt hàng thành công!");
+        await clearCart();
+        
+      } else {
+        alert("Đặt hàng thất bại: " + data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo order:", error);
+      alert("Đã xảy ra lỗi khi đặt hàng.");
+    }
+  };
   if (loading) return <div>Đang tải giỏ hàng...</div>;
 
   if (cartItems.length === 0) return <div>Giỏ hàng của bạn đang trống.</div>;
@@ -112,7 +174,7 @@ const Cart: React.FC = () => {
       {cartItems.map((item) => (
         <div key={item._id} className="flex items-center border-b py-4">
           <img
-            src={item.productId.image}
+            src={item.productId.image[0]} 
             alt={item.productId.name}
             className="w-24 h-24 object-cover mr-4"
           />
@@ -165,10 +227,10 @@ const Cart: React.FC = () => {
       <div className="mt-4 p-4 bg-gray-100 rounded">
         <p className="text-lg font-bold">Tổng tiền: {totalPrice.toFixed(2)} VNĐ</p>
         <button
-          onClick={() => alert("Tiến hành thanh toán")}
+          onClick={createOrder}
           className="bg-green-500 text-white px-4 py-2 mt-2 rounded"
         >
-          Thanh toán
+          Đặt Hàng
         </button>
       </div>
     </div>

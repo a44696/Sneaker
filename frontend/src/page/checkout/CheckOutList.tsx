@@ -37,7 +37,7 @@ const CheckOutList: React.FC = () => {
   // Fetch product details
   const fetchProductDetails = async (productId: string) => {
     try {
-      const response = await fetch('http://localhost:8080/api/products/get-product-details', {
+      const response = await fetch('http://localhost:8080/api/product/get-product-details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId }),

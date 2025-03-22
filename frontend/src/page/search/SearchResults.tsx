@@ -25,7 +25,7 @@ const SearchResults = ({ search }: { search: string }) => {
     };
 
     if (query || minPrice || maxPrice || brand || status) {
-      fetch("http://localhost:8080/api/products/search-product", {
+      fetch("http://localhost:8080/api/product/search-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

@@ -16,7 +16,7 @@ const ProductRelative: React.FC<{ currentProductId: string }> = ({ currentProduc
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/products/get'); // API lấy tất cả sản phẩm
+      const response = await fetch('http://localhost:8080/api/product/get'); // API lấy tất cả sản phẩm
       if (!response.ok) {
         throw new Error('Không thể tải danh sách sản phẩm');
       }

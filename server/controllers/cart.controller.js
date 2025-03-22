@@ -142,3 +142,24 @@ export const deleteCartItemQtyController = async(request,response)=>{
         })
     }
 }
+export const clearCartController = async (request, response) => {
+    try {
+      const userId = request.userId; // Lấy userId từ middleware đã xác thực người dùng
+  
+      // Xóa toàn bộ sản phẩm trong giỏ hàng của user này
+      const clearCart = await CartProductModel.deleteMany({ userId: userId });
+  
+      return response.json({
+        message: "Đã xóa toàn bộ giỏ hàng thành công",
+        success: true,
+        error: false,
+        data: clearCart,
+      });
+    } catch (error) {
+      return response.status(500).json({
+        message: error.message || "Đã xảy ra lỗi khi xóa giỏ hàng",
+        error: true,
+        success: false,
+      });
+    }
+  };

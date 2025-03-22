@@ -7,7 +7,7 @@ interface Product {
   id: number;
   name: string;
   price: string | number;  // price có thể là số hoặc chuỗi
-  image: string;
+  image: [string];
   discount: number;  // Thêm discount
 }
 
@@ -27,19 +27,25 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/products/get", {
+      const response = await fetch("http://localhost:8080/api/product/get", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ page, limit: 12, search }), // Thay đổi limit để lấy 12 sản phẩm mỗi lần
       });
-
+  
       if (!response.ok) {
         throw new Error("Lỗi khi gọi API");
       }
-
+  
       const data = await response.json();
       if (data.success) {
-        setProducts(data.data);
+        // Map lại để chuyển đổi _id thành id
+        const productsWithId = data.data.map((product: any) => ({
+          ...product,
+          id: product._id, // Chuyển _id thành id
+        }));
+  
+        setProducts(productsWithId); // Đặt state products với danh sách mới
         setTotalPages(data.totalNoPage);
       }
     } catch (error) {
@@ -52,12 +58,12 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
   }, [page, search,]);
 
   // Hàm điều hướng khi click vào sản phẩm
-  const handleProductClick = (id: number) => {
+  const handleProductClick = (id: any) => {
     navigate(`/product-details/${id}`);  // Chuyển hướng đến trang chi tiết sản phẩm
   };
 
   // Hàm để thay đổi trạng thái liked của sản phẩm
-  const handleLikeClick = (productId: number) => {
+  const handleLikeClick = (productId: any) => {
     setLikedProducts((prevLiked) =>
       prevLiked.includes(productId)
         ? prevLiked.filter((id) => id !== productId)
@@ -128,7 +134,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                       </span>
                     )}
 
-                    <img src={product.image} alt={product.name} className="w-full h-40 object-cover mb-2" />
+                    <img src={product.image[0]} alt={product.name} className="w-full h-40 object-cover mb-2" />
                     {/* Thêm biểu tượng thích ở góc trên bên phải */}
                     <button
                       onClick={(e) => {
@@ -163,17 +169,21 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
             })}
           </div>
 
-          {/* Phân trang */}
+                  {/* Phân trang */}
           <div className="mt-4 flex justify-center gap-2">
             <button
+              key="prev-button"
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
               className="p-2 bg-gray-300 rounded"
             >
               ◀ Trước
             </button>
-            <span className="mt-2">Trang {page} / {totalPages}</span>
+            <span key="page-info" className="mt-2">
+              Trang {page} / {totalPages}
+            </span>
             <button
+              key="next-button"
               disabled={page >= totalPages}
               onClick={() => setPage(page + 1)}
               className="p-2 bg-gray-300 rounded"
