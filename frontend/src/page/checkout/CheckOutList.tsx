@@ -16,7 +16,7 @@ const CheckOutList: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const productId = queryParams.get("productId");
   const quantity = parseInt(queryParams.get("quantity") || "1");
-
+  console.log("🔎 productId từ URL:", productId);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -40,7 +40,7 @@ const CheckOutList: React.FC = () => {
       const response = await fetch('http://localhost:8080/api/product/get-product-details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({id: productId }),
       });
       const data = await response.json();
       if (data.success) {

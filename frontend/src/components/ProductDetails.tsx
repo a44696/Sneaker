@@ -21,6 +21,11 @@ const ProductDetails: React.FC = () => {
   const [quantity, setQuantity] = useState<number>(1); // Số lượng mặc định là 1
   const navigate = useNavigate();
 
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    navigate(`/checkout?productId=${product._id}&quantity=${quantity}`);
+  };
   const fetchProductDetails = async (id: any) => { // ✅ Nhận id làm tham số
     setLoading(true);
     try {
@@ -180,7 +185,7 @@ const ProductDetails: React.FC = () => {
             <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />Add To Cart
             </button>
-            <button className="p-3 mx-5 bg-black text-white rounded-md flex">
+            <button onClick={handleBuyNow} className="p-3 mx-5 bg-black text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />
               Buy Now
             </button>

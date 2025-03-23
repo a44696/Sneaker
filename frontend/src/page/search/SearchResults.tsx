@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";  // Import Link từ react-router-dom
 import LeftsideBar from "../../components/Layout/LeftsideBar";
 
 const SearchResults = ({ search }: { search: string }) => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const SearchResults = ({ search }: { search: string }) => {
           ) : (
             <div className="grid grid-cols-4 gap-4">
               {products.map((product) => (
-                <div key={product.id} className="border p-4 rounded shadow">
+                <Link to={`/product-details/${product._id}`} key={product.id} className="border p-4 rounded shadow">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -71,7 +71,7 @@ const SearchResults = ({ search }: { search: string }) => {
                       {product.status === "In Stock" ? "Còn hàng" : "Giảm giá"}
                     </p>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           )}
