@@ -28,10 +28,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    delivery_address: {
-      type: mongoose.Schema.ObjectId,
-      ref: "address",
-    },
+   
     subTotalAmt: {
       type: Number,
       default: 0,

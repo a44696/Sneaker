@@ -65,21 +65,27 @@ export const getCategoryController = async(request,response)=>{
 
 export const updateCategoryController = async(request,response)=>{
     try {
-        const { _id ,name, image } = request.body 
+        const { id } = request.body 
 
-        const update = await CategoryModel.updateOne({
-            _id : _id
-        },{
-           name, 
-           image 
+        if(!id){
+            return response.status(400).json({
+                message : "provide Category id",
+                error : true,
+                success : false
+            })
+        }
+
+        const updateCategory = await CategoryModel.updateOne({ _id : id },{
+            ...request.body
         })
 
         return response.json({
-            message : "Updated Category",
-            success : true,
+            message : "updated successfully",
+            data : updateCategory,
             error : false,
-            data : update
+            success : true
         })
+
     } catch (error) {
         return response.status(500).json({
             message : error.message || error,
@@ -101,7 +107,7 @@ export const deleteCategoryController = async(request,response)=>{
             }
         }).countDocuments()
 
-        if(checkSubCategory >  0 || checkProduct > 0 ){
+        if( checkProduct > 0 ){
             return response.status(400).json({
                 message : "Category is already use can't delete",
                 error : true,
@@ -135,6 +141,41 @@ export const getCategoryDetails = async(request,response)=>{
         return response.json({
             message : "category details",
             data :category,
+            error : false,
+            success : true
+        })
+
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+export const createCategoryController = async(request,response)=>{
+    try {
+        const { 
+            name ,
+        } = request.body 
+
+        if(!name){
+            return response.status(400).json({
+                message : "Enter required fields",
+                error : true,
+                success : false
+            })
+        }
+
+        const category = new CategoryModel({
+            name ,
+            image: "",
+        })
+        const saveCategory = await category.save()
+
+        return response.json({
+            message : "category Created Successfully",
+            data : saveCategory,
             error : false,
             success : true
         })

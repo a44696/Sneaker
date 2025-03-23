@@ -83,6 +83,22 @@ const Category = () => (
         ]}
     />
 );
+const CategoryEdit = () => (
+    <GenericEdit
+        resource="category"
+        fields={[
+            { source: "name", label: "Category" },
+        ]}
+    />
+);
+const CategoryCreate = () => (
+    <GenericCreate
+        resource="category"
+        fields={[
+            { source: "name", label: "Category" },
+        ]}
+    />
+);
 const OrderList = () => (
     <GenericList
         resource="order"
@@ -107,4 +123,4 @@ const OrderShow = () => (
         ]}
     />
 );
-export { ProductList, OrderShow, UserList, UserEdit, Category, ProductEdit, ProductCreate, OrderList };
+export { ProductList, CategoryCreate, CategoryEdit, OrderShow, UserList, UserEdit, Category, ProductEdit, ProductCreate, OrderList };

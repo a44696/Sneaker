@@ -152,9 +152,10 @@ const fetchGetOne = async (resource: string, params: any) => {
                 userName: userName,
             };
         } else {
-            customData = json.data;
+            customData = {id: json.data._id || json.data.id, ...json.data};
         }
-        return { data: customData };
+        console.log(customData);
+        return { data: customData};
         
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -217,7 +218,7 @@ const customDataProvider: DataProvider = {
         try {
             const token = localStorage.getItem("accessToken");
             const response = await axios.delete(
-                `${apiUrl}/${resource}/delete-product`, 
+                `${apiUrl}/${resource}/delete`, 
                 { 
                     headers: { Authorization: `Bearer ${token}` },
                     data: { _id: params.id }

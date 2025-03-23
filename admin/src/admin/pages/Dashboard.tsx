@@ -1,77 +1,125 @@
-import { Card, CardContent, Typography, Box} from "@mui/material"
+import { Card,  Typography, Box } from "@mui/material";
 import { Grid } from "@mui/material";
-import { Title } from "react-admin"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { Title } from "react-admin";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import RefundIcon from "@mui/icons-material/ReplayCircleFilled";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import WalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 const data = [
-  { month: "Jan", sales: 4000 },
-  { month: "Feb", sales: 3000 },
-  { month: "Mar", sales: 2000 },
-  { month: "Apr", sales: 2780 },
-  { month: "May", sales: 1890 },
-  { month: "Jun", sales: 3390 },
-  { month: "Jul", sales: 2490 },
-]
+  { month: "Jun", revenue: 1000 },
+  { month: "Jul", revenue: 2000 },
+  { month: "Aug", revenue: 1500 },
+  { month: "Sep", revenue: 3000 },
+  { month: "Oct", revenue: 4000 },
+  { month: "Nov", revenue: 5000 },
+];
 
-const MetricCard = ({ value, percentage, label }: { value: string; percentage: string; label?: string }) => (
-  <Card variant="outlined" sx={{ height: "100%" }}>
-    <CardContent>
-      {label && (
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          {label}
-        </Typography>
-      )}
-      <Box display="flex" alignItems="baseline" gap={1}>
-        <Typography variant="h4" component="div" fontWeight="bold">
-          {value}
-        </Typography>
-        <Typography variant="body2" color="success.main">
-          {percentage}
-        </Typography>
-      </Box>
-    </CardContent>
+const MetricCard = ({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) => (
+  <Card
+    sx={{
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      padding: 2,
+      backgroundColor: "#f5f6fa",
+      borderRadius: 2,
+      gap: 2,
+    }}
+  >
+    <Box
+      sx={{
+        width: 50,
+        height: 50,
+        borderRadius: "50%",
+        backgroundColor: "#e0f7fa",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {icon}
+    </Box>
+    <Box>
+      <Typography variant="h6" fontWeight="bold" sx={{ color: '#000' }}>
+        {value}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ color: '#000' }}>
+        {label}
+      </Typography>
+    </Box>
   </Card>
-)
- const Dashboard = () => (
+);
+
+const Dashboard = () => (
   <>
     <Title title="Dashboard" />
 
     <Box sx={{ mb: 4 }}>
       <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
-        Store Performance
+        Store Overview
+      </Typography>
+      <Typography variant="body2" color="text.secondary" gutterBottom>
+        Welcome Back to Dashboard.
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
-          <MetricCard value="$10,000" percentage="+19%" />
+      <Grid container spacing={3} sx={{ mb: 4 ,color: '#000'}} >
+        <Grid item xs={12} md={3}>
+          <MetricCard
+            icon={<WalletIcon color="primary" />}
+            value="$52,54"
+            label="Total Earning"
+          />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <MetricCard value="150" percentage="+25%" />
+        <Grid item xs={12} md={3}>
+          <MetricCard
+            icon={<AttachMoneyIcon color="primary" />}
+            value="$4955"
+            label="Monthly Earning"
+          />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <MetricCard value="300" percentage="+10%" />
+        <Grid item xs={12} md={3}>
+          <MetricCard
+            icon={<RefundIcon color="primary" />}
+            value="$4,434"
+            label="Total Refunds"
+          />
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <MetricCard
+            icon={<TrendingUpIcon color="primary" />}
+            value="80%"
+            label="Profit Margin"
+          />
         </Grid>
       </Grid>
 
       <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
-        Monthly Sales
-      </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
         Revenue
       </Typography>
 
       <Box sx={{ height: 300, mt: 2 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="month" axisLine={false} tickLine={false} />
             <YAxis hide />
-            <Bar dataKey="sales" fill="#888888" radius={[4, 4, 0, 0]} />
-          </BarChart>
+            <Tooltip />
+            <Line type="monotone" dataKey="revenue" stroke="#00bcd4" strokeWidth={3} dot={{ r: 6 }} />
+          </LineChart>
         </ResponsiveContainer>
       </Box>
     </Box>
   </>
-)
+);
 
 export default Dashboard;

@@ -42,7 +42,7 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
             actions={<ListActions title={title} resource={resource} />}
             pagination={<Pagination />}
         >
-            <Datagrid>
+            <Datagrid rowClick={false}>
                 {fields.map((field) => {
                     switch (field.type) {
                         case 'number':
