@@ -102,7 +102,10 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
               <div className="relative group">
                 <img src={user.avatar || "/default-avatar.png"} alt="User Avatar" className="w-8 h-8 rounded-full cursor-pointer" />
                 <div className="hidden group-hover:block absolute right-0 bg-white shadow-md rounded-md w-40 py-2">
-                  <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">{user.name}</button>
+                  <button onClick={() => navigate("/user-profile")} 
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    {user.name}
+                    </button>
                   <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
                 </div>
               </div>

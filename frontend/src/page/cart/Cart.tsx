@@ -17,7 +17,7 @@ interface CartItem {
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate;
+  const navigate = useNavigate();
   // ✅ Lấy danh sách giỏ hàng từ API
   const fetchCart = async () => {
     try {
@@ -44,6 +44,7 @@ const Cart: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchCart();

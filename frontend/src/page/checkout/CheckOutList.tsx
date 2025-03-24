@@ -52,7 +52,7 @@ const CheckOutList: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     if (productId) {
       fetchProductDetails(productId);
@@ -69,6 +69,8 @@ const CheckOutList: React.FC = () => {
   const subtotal = (parseFloat(discountedPrice) * quantity).toFixed(2);
   const shippingCost = parseFloat(subtotal) >= 50 ? 0 : 5;
   const total = (parseFloat(subtotal) + shippingCost).toFixed(2);
+
+  
 
   // Handle form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -126,7 +128,7 @@ const CheckOutList: React.FC = () => {
       const data = await response.json();
       if (data.success) {
         alert("Đặt hàng thành công!");
-        navigate("/thank-you"); // Điều hướng đến trang cảm ơn
+        navigate("/"); // Điều hướng đến trang cảm ơn
       } else {
         alert("Có lỗi xảy ra khi tạo đơn hàng");
       }

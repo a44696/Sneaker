@@ -12,7 +12,7 @@ import ForgotPasswordPage from "./page/auth/ForgotPasswordPage";
 import VerifyOtpPage from "./page/auth/VerifyOtpPage";
 import ResetPasswordPage from "./page/auth/ResetPasswordPage";
 import VerifyEmailPage from "./page/auth/VerifyEmailPage";
-
+import UserProfile from "./page/user/Profile";
 
 const App = () => {
   const [search, setSearch] = useState("");
@@ -27,6 +27,7 @@ const App = () => {
       <Route path="/verify-otp" element={<VerifyOtpPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      
       <Route path="/" element={<Layout search={search} setSearch={setSearch} />}>
         <Route index element={<ProductList search={search} setSearch={setSearch} />} />
         <Route path="/search-product" element={<SearchResults search={search} />} />
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/signup" element={<SignInPage />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<CheckOutList />} />
+        <Route path="/user-profile" element={<UserProfile />} />
       </Route>
     </Routes>
     </Router>

@@ -111,12 +111,7 @@ const Footer: React.FC = () => {
           <span>Privacy Policy</span>
           <span>Order Tracking</span>
         </div>
-        <div className="flex justify-center gap-2 mt-2">
-          <img src="/visa-logo.png" alt="Visa" className="h-6" />
-          <img src="/paypal-logo.png" alt="PayPal" className="h-6" />
-          <img src="/skrill-logo.png" alt="Skrill" className="h-6" />
-          <img src="/klarna-logo.png" alt="Klarna" className="h-6" />
-        </div>
+        
       </div>
     </footer>
   );
