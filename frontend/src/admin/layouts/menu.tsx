@@ -8,10 +8,10 @@ const CustomMenu = (props: MenuProps) => {
     
         <Menu {...props} sx={{ '& .RaMenu-root': { paddingLeft: 0 } }}>
            <Menu.Item 
-                to="/" 
+                to="/dashboard" 
                 primaryText="Dashboard" 
                 leftIcon={<Home />} 
-                onClick={() => navigate('/')} 
+                onClick={() => navigate('/dashboard')} 
             />
             <Menu.Item to="/product" primaryText="Products" leftIcon={<DoNotStep />} />
             <Menu.Item to="/category" primaryText="Product Categories" leftIcon={<Category />} />
