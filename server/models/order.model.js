@@ -28,7 +28,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-   
     subTotalAmt: {
       type: Number,
       default: 0,

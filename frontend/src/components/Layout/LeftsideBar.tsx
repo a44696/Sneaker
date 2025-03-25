@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { Slider } from '@mui/material'; 
+import Button from '@mui/material/Button';
 const LeftsideBar = () => {
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(10000000);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 10000000]);
   const [selectedBrand, setSelectedBrand] = useState<string>('Tất cả sản phẩm');
   const [selectedStatus, setSelectedStatus] = useState<string>('Tất cả sản phẩm');
   const navigate = useNavigate();
@@ -14,22 +14,24 @@ const LeftsideBar = () => {
     // Chuyển hướng sang trang tìm kiếm với thương hiệu được chọn
     const queryParams = new URLSearchParams({
       query: brand !== 'Tất cả sản phẩm' ? brand : '', // Chỉ thêm thương hiệu vào query khi không phải "Tất cả sản phẩm"
-      minPrice: minPrice.toString(),
-      maxPrice: maxPrice.toString(),
+      minPrice: priceRange[0].toString(),
+      maxPrice: priceRange[1].toString(),
       brand: brand,
       status: selectedStatus,
     });
     navigate(`/search-product?${queryParams.toString()}`);
   };
-
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]); // Cập nhật giá trị slider
+  };
   // Hàm thay đổi trạng thái sản phẩm đã chọn
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);
     // Chuyển hướng sang trang tìm kiếm với trạng thái được chọn
     const queryParams = new URLSearchParams({
       query: '', // Truy vấn sản phẩm theo trạng thái không cần thiết, chỉ cần status
-      minPrice: minPrice.toString(),
-      maxPrice: maxPrice.toString(),
+      minPrice: priceRange[0].toString(),
+      maxPrice: priceRange[1].toString(),
       brand: selectedBrand,
       status: status,
     });
@@ -39,8 +41,8 @@ const LeftsideBar = () => {
   // Hàm gọi API và chuyển hướng đến trang kết quả tìm kiếm khi lọc giá
   const handleFilter = () => {
     const queryParams = new URLSearchParams({
-      minPrice: minPrice.toString(),
-      maxPrice: maxPrice.toString(),
+      minPrice: priceRange[0].toString(),
+      maxPrice: priceRange[1].toString(),
       brand: selectedBrand,
       status: selectedStatus,
     });
@@ -49,36 +51,32 @@ const LeftsideBar = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mb-2">
       <div>
         <aside className="col-span-1 bg-gray-100 p-4 rounded">
           {/* Bộ lọc giá */}
           <div className="mb-4">
-            <h2 className="text-lg font-bold">Widget price filter</h2>
-            <div className="flex justify-between text-sm">
-              <input
-                type="number"
-                value={minPrice}
-                onChange={(e) => setMinPrice(parseInt(e.target.value) || 0)}
-                className="w-16 p-1 border rounded"
-                placeholder="Min"
-              />
-              <span>-</span>
-              <input
-                type="number"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(parseInt(e.target.value) || 0)}
-                className="w-16 p-1 border rounded"
-                placeholder="Max"
-              />
-            </div>
-            <button
-              onClick={handleFilter}  // Gọi handleFilter khi nhấn nút Filter
-              className="mt-2 w-full bg-gray-300 p-2 rounded fw-bold"
-            >
-              Filter
-            </button>
-          </div>
+      <h2 className="text-lg font-bold">Widget price filter</h2>
+
+      <div className="mt-4">
+        <Slider
+          value={priceRange}
+          onChange={handleSliderChange}
+          valueLabelDisplay="auto"
+          min={0}
+          max={10000000}
+          step={1000}
+          size="small"
+          color="secondary"
+       
+        />
+      </div>
+
+   
+
+    
+      <Button variant="contained" color="secondary" className="w-full  p-2 rounded fw-bold" onClick={handleFilter}>Filter</Button>
+    </div>
 
           {/* Danh mục sản phẩm */}
           <div className="mb-4">

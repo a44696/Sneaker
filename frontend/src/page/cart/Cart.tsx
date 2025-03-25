@@ -117,13 +117,9 @@ const Cart: React.FC = () => {
       alert("Lỗi khi xóa giỏ hàng sau khi đặt hàng.");
     }
   };
-  const createOrder = async () => {
-    const user = localStorage.getItem("user"); // Lấy userId từ localStorage
-    const userId = user ? JSON.parse(user)._id : null;
-    if (!userId) {
-      alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
-      return;
-    }
+  
+  const handleOrder = async () => {
+   
   
     const products = cartItems.map((item) => ({
       productId: item.productId._id,
@@ -134,29 +130,13 @@ const Cart: React.FC = () => {
         item.productId.price * (1 - item.productId.discount / 100);
       return sum + priceAfterDiscount * item.quantity;
     }, 0);
-  
-    try {
-      const response = await fetch("http://localhost:8080/api/order/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({ userId, products, totalAmt }), // Truyền userId từ localStorage
-      });
-  
-      const data = await response.json();
-      if (data.success) {
-        alert("Đặt hàng thành công!");
-        await clearCart();
-        
-      } else {
-        alert("Đặt hàng thất bại: " + data.message);
-      }
-    } catch (error) {
-      console.error("Lỗi khi tạo order:", error);
-      alert("Đã xảy ra lỗi khi đặt hàng.");
+    const OrderData = {
+      products,
+      totalAmt,
     }
+    await clearCart();
+    navigate("/checkout", {state: OrderData});
+    
   };
   if (loading) return <div>Đang tải giỏ hàng...</div>;
 
@@ -228,7 +208,7 @@ const Cart: React.FC = () => {
       <div className="mt-4 p-4 bg-gray-100 rounded">
         <p className="text-lg font-bold">Tổng tiền: {totalPrice.toFixed(2)} VNĐ</p>
         <button
-          onClick={createOrder}
+          onClick={handleOrder}
           className="bg-green-500 text-white px-4 py-2 mt-2 rounded"
         >
           Đặt Hàng

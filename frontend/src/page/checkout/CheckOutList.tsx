@@ -1,31 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-interface Product {
-  _id: string;
+
+interface OrderData{
+  products: {
+    productId: string;
+    quantity: number;
+  }[]; // Mảng có nhiều phần tử
+  totalAmt: string;
+}
+interface User {
+  id: string;
+  address: string;
   name: string;
-  price: string;
-  image: string;
-  stock: number;
-  discount: number;
+  email: string;
+  mobile: string;
+}
+interface ProductDetail {
+  quantity: number; // Số lượng sản phẩm
+  data: {
+    _id: string;                // ID của sản phẩm
+    name: string;               // Tên sản phẩm
+    price: number;              // Giá sản phẩm
+    discount?: number;          // Chiết khấu (có thể có hoặc không)
+    stock: number;              // Số lượng hàng trong kho
+    description: string;        // Mô tả sản phẩm
+    category: string[];         // Danh mục (danh sách ID)
+    image: string[];            // Danh sách đường dẫn hình ảnh
+    more_details: string;       // Chi tiết bổ sung
+    publish: boolean;           // Trạng thái xuất bản
+    createdAt: string;          // Thời gian tạo
+    updatedAt: string;          // Thời gian cập nhật
+    unit: string;               // Đơn vị sản phẩm
+    __v: number;                // Phiên bản trong cơ sở dữ liệu MongoDB
+  };
 }
 
+type ProductsDetail = ProductDetail[];
 const CheckOutList: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const queryParams = new URLSearchParams(location.search);
-  const productId = queryParams.get("productId");
-  const quantity = parseInt(queryParams.get("quantity") || "1");
-  console.log("🔎 productId từ URL:", productId);
-  const [product, setProduct] = useState<Product | null>(null);
+ 
+  const [productsDetail, setProductsDetail] = useState<ProductsDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const [user, setUser] = useState<User | null>(null);
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    Name: "",  
     address: "",
-    city: "",
-    state: "",
     phone: "",
     email: "",
     agree: false,
@@ -33,7 +54,7 @@ const CheckOutList: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const orderData = location.state as OrderData;;
   // Fetch product details
   const fetchProductDetails = async (productId: string) => {
     try {
@@ -44,7 +65,9 @@ const CheckOutList: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        setProduct(data.data);
+        console.log('Chi tiết sản phẩm:', data.data);
+        return data.data;
+
       }
     } catch (err) {
       console.error('Lỗi khi lấy chi tiết sản phẩm:', err);
@@ -52,25 +75,105 @@ const CheckOutList: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
-    if (productId) {
-      fetchProductDetails(productId);
+    const fetchDetails = async () => {
+      if (orderData.products.length > 0) {
+        const data = await Promise.all(
+          orderData.products.map(async (product) => {
+            const productDetails = await fetchProductDetails(product.productId); // Chờ fetch hoàn tất
+            return {
+              quantity: product.quantity,
+              data: productDetails, // Trả về dữ liệu đã resolve
+            };
+          })
+        );
+        setProductsDetail(data); // Cập nhật state với dữ liệu đã resolve
+        console.log(data); // Giờ đây, 'data' là mảng các object, không phải Promise
+      }
+    };
+  
+    fetchDetails(); // Gọi hàm async
+
+    const user = localStorage.getItem("user");
+
+    let userData = {
+      id: "",
+      address: "",
+      name: "",
+      email: "",
+      mobile: "",
+    };
+    
+    if (user) {
+      try {
+        const parsedUser = JSON.parse(user); // Parse chuỗi thành object
+        userData = {
+          id: parsedUser._id || "",
+          address: parsedUser.address_details || "",
+          name: parsedUser.name || "",
+          email: parsedUser.email || "",
+          mobile: parsedUser.mobile || "",
+        };
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage:", error);
+      }
     }
-  }, [productId]);
+    setForm({
+      ...form,
+      Name: userData.name,
+      address: userData.address,
+      phone: userData.mobile,
+      email: userData.email,
+    })
+    setUser(userData)// Lấy userId từ localStorage
+    const userId = user ? JSON.parse(user)._id : null;
+    if (!userId) {
+      alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
+      return;
+    }
+  }, []);
 
   if (loading) return <div>Loading...</div>;
-  if (!product) return <div>Không tìm thấy sản phẩm</div>;
+  if (!productsDetail) return <div>Giỏ Hàng trống</div>;
+  productsDetail.forEach((product :any) => {
+    const discountedPrice = product.data.discount
+    ? (parseFloat(product.data.price) * (1 - product.data.discount / 100)).toFixed(2)
+    : product.data.price;
 
-  const discountedPrice = product.discount
-    ? (parseFloat(product.price) * (1 - product.discount / 100)).toFixed(2)
-    : product.price;
-
-  const subtotal = (parseFloat(discountedPrice) * quantity).toFixed(2);
+  const subtotal = (parseFloat(discountedPrice) * product.quantity).toFixed(2);
   const shippingCost = parseFloat(subtotal) >= 50 ? 0 : 5;
   const total = (parseFloat(subtotal) + shippingCost).toFixed(2);
-
+  });
   
+
+  const createOrder = async () => {
+  const userId = user?.id;
+  const products = orderData.products;
+  const totalAmt = orderData.totalAmt;
+    try {
+      const response = await fetch("http://localhost:8080/api/order/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({ userId, products, totalAmt }), // Truyền userId từ localStorage
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        alert("Đặt hàng thành công!");
+        navigate("/");
+        
+      } else {
+        alert("Đặt hàng thất bại: " + data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo order:", error);
+      alert("Đã xảy ra lỗi khi đặt hàng.");
+    }
+  };
 
   // Handle form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -81,91 +184,31 @@ const CheckOutList: React.FC = () => {
   // Validate form
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!form.firstName) newErrors.firstName = "First name is required";
-    if (!form.lastName) newErrors.lastName = "Last name is required";
+    if (!form.Name) newErrors.firstName = "First name is required";
     if (!form.address) newErrors.address = "Address is required";
-    if (!form.city) newErrors.city = "City is required";
-    if (!form.state) newErrors.state = "State is required";
     if (!form.phone) newErrors.phone = "Phone is required";
     if (!form.email) newErrors.email = "Email is required";
-    if (!form.agree) newErrors.agree = "You must agree to terms";
+    // if (!form.agree) newErrors.agree = "You must agree to terms";
     return newErrors;
   };
 
-  // Handle Place Order
-  const handlePlaceOrder = async () => {
-    // Kiểm tra tính hợp lệ của form
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-  
-    // Lấy thông tin từ form và tính toán lại tổng giá trị đơn hàng
-    const orderData = {
-      list_items: [
-        {
-          productId: product._id,
-          quantity,
-        },
-      ],
-      totalAmt: total,  // Tổng giá trị đơn hàng
-      subTotalAmt: subtotal,  // Tổng giá trị chưa bao gồm phí vận chuyển
-      addressId: form.address,  // Địa chỉ giao hàng từ form
-    };
-  
-    try {
-      // Gửi yêu cầu tạo đơn hàng
-      const response = await fetch("http://localhost:8080/api/order/cash-on-delivery", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // token xác thực
-        },
-        body: JSON.stringify(orderData),
-      });
-  
-      const data = await response.json();
-      if (data.success) {
-        alert("Đặt hàng thành công!");
-        navigate("/"); // Điều hướng đến trang cảm ơn
-      } else {
-        alert("Có lỗi xảy ra khi tạo đơn hàng");
-      }
-    } catch (error) {
-      console.error("Lỗi khi gửi đơn hàng:", error);
-      alert("Có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại!");
-    }
-  };
-  
-
   return (
+  <>
     <div className="flex justify-center p-8">
       {/* Billing Details Form */}
       <div className="w-2/3 mr-8">
         <h2 className="text-xl font-semibold mb-4">Billing details</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className=" col-span-full  ">
           <div>
             <input
               type="text"
-              name="firstName"
-              placeholder="First name *"
-              value={form.firstName}
+              name="Name"
+              placeholder=" name *"
+              value={form.Name}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded mb-4"
             />
-            {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-          </div>
-          <div>
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last name *"
-              value={form.lastName}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+            {errors.Name && <p className="text-red-500 text-sm">{errors.Name}</p>}
           </div>
           <div className="col-span-2">
             <input
@@ -174,32 +217,11 @@ const CheckOutList: React.FC = () => {
               placeholder="Street address *"
               value={form.address}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded mb-4"
             />
             {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
           </div>
-          <div>
-            <input
-              type="text"
-              name="city"
-              placeholder="Town / City *"
-              value={form.city}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
-          </div>
-          <div>
-            <input
-              type="text"
-              name="state"
-              placeholder="State *"
-              value={form.state}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            {errors.state && <p className="text-red-500 text-sm">{errors.state}</p>}
-          </div>
+
           <div>
             <input
               type="text"
@@ -207,7 +229,7 @@ const CheckOutList: React.FC = () => {
               placeholder="Phone *"
               value={form.phone}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded mb-4"
             />
             {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
           </div>
@@ -218,7 +240,7 @@ const CheckOutList: React.FC = () => {
               placeholder="Email address *"
               value={form.email}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded mb-4"
             />
             {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
@@ -226,25 +248,45 @@ const CheckOutList: React.FC = () => {
       </div>
 
       {/* Your Order Section */}
-      <div className="w-1/3 bg-gray-100 p-6 rounded-md">
-        <h2 className="text-lg font-semibold mb-4">Your order</h2>
-        <h3 >Product</h3>
-        <div className="border-b pb-4 mb-4">
-          
-          <div className="flex justify-between">
-            <span className="font-bold">{product.name} x {quantity}</span>
-            <span className="font-bold">{subtotal}  VNĐ</span>
-          </div>
-          <div className="flex justify-between text-sm text-gray-600 mt-2">
-            <span>Shipping:</span>
-            {shippingCost === 0 ? <span className="font-bold">Free</span> : <span>{shippingCost} VNĐ</span>}
-          </div>
-        </div>
-        <div className="flex justify-between font-bold text-lg mb-4">
-          <span>Total</span>
-          <span>{total} VNĐ</span>
-        </div>
+  <div className="w-1/3 bg-gray-100 p-6 rounded-md">
+  <h2 className="text-lg font-semibold mb-4">Your order</h2>
+  <h3>Product</h3>
+  <div className="border-b pb-4 mb-4">
+    {productsDetail?.map((productDetail) => {
+      const { quantity, data } = productDetail; // Giải cấu trúc từ từng phần tử trong mảng
+      const subtotal = quantity * data.price; // Tính thành tiền
 
+      return (
+        <div key={data._id}>
+          <div className="flex justify-between">
+            <span className="font-bold">
+              {data.name} x {quantity}
+            </span>
+            <span className="font-bold">{subtotal.toLocaleString()} VNĐ</span>
+          </div>
+        </div>
+      );
+    })}
+
+    <div className="flex justify-between text-sm text-gray-600 mt-2">
+      <span>Shipping:</span>
+      {/* {shippingCost === 0 ? ( */}
+        <span className="font-bold">Free</span>
+      {/* // ) : (
+      //   <span>{shippingCost.toLocaleString()} VNĐ</span>
+      // )} */}
+    </div>
+   
+  </div>
+  <div className="flex justify-between text-sm text-gray-600">
+      <span>Total:</span>
+      <span className="font-bold">{orderData.totalAmt.toLocaleString()} VNĐ</span>
+      </div> 
+  
+</div>
+</div>
+<div>
+<div>
         {/* Payment Methods */}
         <div className="mb-4">
           <label className="flex items-center">
@@ -285,13 +327,14 @@ const CheckOutList: React.FC = () => {
 
         {/* Place order button */}
         <button
-          onClick={handlePlaceOrder}
+          onClick={createOrder}
           className="w-full bg-purple-600 text-white py-2 rounded-md"
         >
           Place order
         </button>
       </div>
     </div>
+  </>
   );
 };
 
