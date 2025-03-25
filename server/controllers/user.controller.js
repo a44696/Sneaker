@@ -554,3 +554,31 @@ export async function getUserDetails(request,response){
         })
     }
 }
+export const deleteUserDetails = async(request,response)=>{
+    try {
+        const { _id } = request.body 
+
+        if(!_id){
+            return response.status(400).json({
+                message : "provide _id ",
+                error : true,
+                success : false
+            })
+        }
+
+        const deleteUser = await UserModel.deleteOne({_id : _id })
+
+        return response.json({
+            message : "Delete successfully",
+            error : false,
+            success : true,
+            data : deleteUser
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}

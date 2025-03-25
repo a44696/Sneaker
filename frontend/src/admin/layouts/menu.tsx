@@ -17,7 +17,7 @@ const CustomMenu = (props: MenuProps) => {
             <Menu.Item to="/category" primaryText="Product Categories" leftIcon={<Category />} />
             <Menu.Item to="/user" primaryText="User" leftIcon={<People />} />
             <Menu.Item to="/order" primaryText="Order" leftIcon={<ShoppingCart />} />
-            <Menu.Item to="/warehouse" primaryText="Warehouse" leftIcon={<Warehouse />} />
+            
         </Menu>
     );
 }

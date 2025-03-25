@@ -82,7 +82,6 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
                                 {resource === "order" && (
                                     <ShowButton record={record} />
                                 )
-                                
                                 }
                                 <EditButton record={record} />
                                 <DeleteButton record={record} />
