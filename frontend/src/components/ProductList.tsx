@@ -30,7 +30,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
       const response = await fetch("http://localhost:8080/api/product/get", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page, limit: 12, search }), // Thay đổi limit để lấy 12 sản phẩm mỗi lần
+        body: JSON.stringify({ page, limit: 12 }), // Thay đổi limit để lấy 12 sản phẩm mỗi lần
       });
   
       if (!response.ok) {
@@ -75,7 +75,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
   
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 !max-w-full">
       <div className="grid grid-cols-6 gap-4"> {/* Chỉnh số cột thành 6 */}
         <LeftsideBar/>
         {/* Danh sách sản phẩm */}

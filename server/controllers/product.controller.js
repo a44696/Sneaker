@@ -1,5 +1,5 @@
 import ProductModel from "../models/product.model.js";
-
+import mongoose from 'mongoose';
 export const createProductController = async(request,response)=>{
     try {
         const { 
@@ -54,8 +54,7 @@ export const createProductController = async(request,response)=>{
 export const getProductController = async(request,response)=>{
     try {
         
-        let { page, limit, search } = request.body 
-
+        let { page = 1, limit = 10, search, minPrice, maxPrice } = request.body;
         if(!page){
             page = 1
         }
@@ -63,18 +62,14 @@ export const getProductController = async(request,response)=>{
         if(!limit){
             limit = 10
         }
-
-        const query = search ? {
-            $text : {
-                $search : search
-            }
-        } : {}
-
         const skip = (page - 1) * limit
-
+        const filters = {
+            ...(search && { name: { $regex: search, $options: "i" } }), // Nếu có `search`, thêm bộ lọc $text
+            price: { $gte: minPrice || 0, $lte: maxPrice || 10000000 }, // Điều kiện lọc theo giá
+          };
         const [data,totalCount] = await Promise.all([
-            ProductModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit).populate('category'),
-            ProductModel.countDocuments(query)
+            ProductModel.find(filters).sort({createdAt : -1 }).skip(skip).limit(limit).populate('category'),
+            ProductModel.countDocuments(filters)
         ])
 
         return response.json({
@@ -94,38 +89,44 @@ export const getProductController = async(request,response)=>{
     }
 }
 
-export const getProductByCategory = async(request,response)=>{
+export const getProductByCategory = async (request, response) => {
     try {
-        const { id } = request.body 
-
-        if(!id){
-            return response.status(400).json({
-                message : "provide category id",
-                error : true,
-                success : false
-            })
-        }
-
-        const product = await ProductModel.find({ 
-            category : { $in : id }
-        }).limit(15)
-
-        return response.json({
-            message : "category product list",
-            data : product,
-            error : false,
-            success : true
-        })
+      const { search, minPrice, maxPrice, category, page, limit } = request.body;
+  
+      if (!search && !category  && !minPrice && !maxPrice) {
+        return response.status(400).json({
+          message: "Provide at least one filter parameter",
+          error: true,
+          success: false,
+        });
+      }
+  
+      const filters = {
+        ...(search && { category: { $in: [new mongoose.Types.ObjectId(search)] } }), 
+        price: { $gte: minPrice || 0, $lte: maxPrice || 10000000 },                 
+      };
+  
+      const products = await ProductModel.find(filters)
+        .skip((page - 1) * limit)
+        .limit(limit);
+  
+      const totalCount = await ProductModel.countDocuments(filters);
+  
+      return response.json({
+        message: "Filtered product list",
+        data: products,
+        totalNoPage: Math.ceil(totalCount / limit), // Tổng số trang
+        error: false,
+        success: true,
+      });
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+      return response.status(500).json({
+        message: error.message || error,
+        error: true,
+        success: false,
+      });
     }
-}
-
-
+  };
 
 export const getProductDetails = async(request,response)=>{
     try {

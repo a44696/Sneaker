@@ -14,9 +14,9 @@ const Layout: React.FC<LayoutProps> = ({ search, setSearch }) => {
     <div>
       <Header search={search} setSearch={setSearch} />
       
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-4 !max-w-full">
         
-        <Outlet />
+        <Outlet  />
       </main>
       <Footer />
     </div>
