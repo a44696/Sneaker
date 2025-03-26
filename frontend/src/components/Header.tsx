@@ -188,8 +188,8 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
 
         <nav className="border-t px-6 flex justify-between">
           <ul className="flex gap-6 py-3 text-gray-700 font-medium">
-            <li><Link to="/" className="hover:text-red-500">Home ▾</Link></li>
-            <li><Link to="/shop" className="hover:text-red-500">Shop ▾</Link></li>
+            <li><Link to="/home" className="hover:text-red-500">Home ▾</Link></li>
+            <li><Link to="/" className="hover:text-red-500">Shop ▾</Link></li>
             <li><Link to="/sneakers" className="hover:text-red-500">Sneakers</Link></li>
             <li><Link to="/accessories" className="hover:text-red-500">Clothes & Accessories</Link></li>
             <li><Link to="/blog" className="hover:text-red-500">Blog</Link></li>

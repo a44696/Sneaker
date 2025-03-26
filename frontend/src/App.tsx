@@ -22,7 +22,7 @@ import ResetPasswordPage from "./page/auth/ResetPasswordPage";
 import VerifyEmailPage from "./page/auth/VerifyEmailPage";
 import UserProfile from "./page/user/Profile";
 import { useState } from "react";
-
+import HomePage from './page/home/Home.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
 
@@ -33,6 +33,7 @@ import { useState } from "react";
           {/* Các route frontend */}
           <Route path="/" element={<Layout search={search} setSearch={setSearch} />}>
             <Route index element={<ProductListPage search={search} setSearch={setSearch} />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/product-details/:id" element={<ProductDetails />} />
             <Route path="/search-product" element={<SearchResults search={search} />} />
             <Route path="/cart" element={<Cart />} />
