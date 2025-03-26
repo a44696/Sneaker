@@ -65,7 +65,7 @@ export const getProductController = async(request,response)=>{
         const skip = (page - 1) * limit
         const filters = {
             ...(search && { name: { $regex: search, $options: "i" } }), // Nếu có `search`, thêm bộ lọc $text
-            price: { $gte: minPrice || 0, $lte: maxPrice || 10000000 }, // Điều kiện lọc theo giá
+            price: { $gte: minPrice || 0, $lte: maxPrice || 100000000000000000000 }, // Điều kiện lọc theo giá
           };
         const [data,totalCount] = await Promise.all([
             ProductModel.find(filters).sort({createdAt : -1 }).skip(skip).limit(limit).populate('category'),
@@ -91,9 +91,9 @@ export const getProductController = async(request,response)=>{
 
 export const getProductByCategory = async (request, response) => {
     try {
-      const { search, minPrice, maxPrice, category, page, limit } = request.body;
+      const { query, minPrice, maxPrice, category, page, limit } = request.body;
   
-      if (!search && !category  && !minPrice && !maxPrice) {
+      if (!query && !category  && !minPrice && !maxPrice) {
         return response.status(400).json({
           message: "Provide at least one filter parameter",
           error: true,
@@ -102,7 +102,7 @@ export const getProductByCategory = async (request, response) => {
       }
   
       const filters = {
-        ...(search && { category: { $in: [new mongoose.Types.ObjectId(search)] } }), 
+        ...(query && { category: { $in: [new mongoose.Types.ObjectId(query)] } }), 
         price: { $gte: minPrice || 0, $lte: maxPrice || 10000000 },                 
       };
   

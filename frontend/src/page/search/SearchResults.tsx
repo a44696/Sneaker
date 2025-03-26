@@ -49,7 +49,7 @@ const SearchResults = ({ search }: { search: string }) => {
       maxPrice: maxPrice ? parseInt(maxPrice) : 10000000,
       category: category !== "Tất cả sản phẩm" ? category : undefined,
     };
-
+    console.log(requestBody);
     if (requestBody.query === "") {
       fetchProducts(page, minPrice, maxPrice, search);
     } else {
