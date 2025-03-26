@@ -15,6 +15,8 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   const [productOptions, setProductOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+
 
   useEffect(() => {
     const storedUserString = localStorage.getItem("user");
@@ -61,6 +63,22 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
       setProductOptions([]);
     }
   }, [search]);
+
+  const updateCartCount = () => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const totalItems = cart.reduce((total: number, item: any) => total + item.quantity, 0);
+    setCartCount(totalItems);
+  };
+
+  useEffect(() => {
+    updateCartCount();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("storage", updateCartCount);
+    return () => window.removeEventListener("storage", updateCartCount);
+  }, []);
+
 
   return (
     <div>
@@ -158,8 +176,12 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
               </span>
             </a>
             <Link to="/cart" className="relative hover:text-gray-900">
-              <FaShoppingCart />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">0</span>
+            <FaShoppingCart />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>

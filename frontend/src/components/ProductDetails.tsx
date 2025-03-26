@@ -76,11 +76,29 @@ const ProductDetails: React.FC = () => {
           quantity: quantity,
         }),
       });
-      
+
       const data = await response.json();
   
       if (data.success) {
         console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
+
+         // Lấy giỏ hàng từ localStorage
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+        const existingItem = cart.find((item: any) => item.productId === product._id);
+
+        if (!existingItem) {
+          cart.push({ productId: product._id, quantity }); // Chỉ thêm nếu chưa có
+        } else {
+          console.log("🔹 Sản phẩm đã có trong giỏ hàng, không tăng số lượng!");
+        }
+        // Lưu lại vào localStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        // Kích hoạt sự kiện để cập nhật Header
+        window.dispatchEvent(new Event("storage"));
+
         navigate("/cart"); // Chuyển hướng đến giỏ hàng
       } else {
         alert(data.message);
@@ -90,6 +108,7 @@ const ProductDetails: React.FC = () => {
       console.error("❌ Lỗi kết nối API:", error);
     }
   };
+
   
   // Hàm tăng số lượng
   const increaseQuantity = () => {

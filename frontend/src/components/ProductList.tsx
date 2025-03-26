@@ -120,25 +120,23 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
               const discountedPrice = product.discount > 0 ? price * (1 - product.discount / 100) : price;
               const isLiked = likedProducts.includes(product.id); // Kiểm tra sản phẩm có được thích hay không
 
-              return (
+              return (                
                 <div
                   key={product.id}
-                  className="border p-4 rounded shadow cursor-pointer"
-                  onClick={() => handleProductClick(product.id)} // Bấm vào sản phẩm để điều hướng
+                  className="border p-4 rounded shadow cursor-pointer h-full flex flex-col"
+                  onClick={() => handleProductClick(product.id)}
                 >
                   <div className="relative">
-                    {/* Hiển thị phần giảm giá ở góc trên bên trái */}
+                    {/* Hiển thị phần giảm giá */}
                     {product.discount > 0 && (
                       <span className="absolute top-2 left-2 bg-red-500 text-white py-1 px-2 rounded-full text-sm font-semibold">
                         -{product.discount}%
                       </span>
                     )}
-
                     <img src={product.image[0]} alt={product.name} className="w-full h-40 object-cover mb-2" />
-                    {/* Thêm biểu tượng thích ở góc trên bên phải */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Ngừng sự kiện bọt để không trigger handleProductClick
+                        e.stopPropagation();
                         handleLikeClick(product.id);
                       }}
                       className="absolute top-2 right-2 text-red-500"
@@ -147,23 +145,26 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                     </button>
                   </div>
 
-                  <h3 className="font-bold text-lg">{product.name}</h3>
-                  <p className="text-red-500 font-bold">{price.toLocaleString()} VNĐ</p>
+                  {/* Phần nội dung sản phẩm */}
+                  <div className="flex flex-col flex-grow">
+                  <h3 className="font-bold text-lg line-clamp-2 h-14 overflow-hidden">
+                  {product.name}
+                </h3>
+                    <p className="text-red-500 font-bold">{price.toLocaleString()} VNĐ</p>
 
-                  {/* Hiển thị giá sau khi giảm nếu có */}
-                  {product.discount > 0 && (
-                    <div className="text-green-500 mt-2">
-                      <p className="line-through text-gray-400">{price.toLocaleString()} VNĐ</p>
-                      <p className="text-lg font-bold">
-                        {discountedPrice.toLocaleString()} VNĐ
-                      </p>
-                    </div>
-                  )}
+                    {product.discount > 0 && (
+                      <div className="text-green-500">
+                        <p className="line-through text-gray-400">{price.toLocaleString()} VNĐ</p>
+                        <p className="text-lg font-bold">{discountedPrice.toLocaleString()} VNĐ</p>
+                      </div>
+                    )}
 
-                  <button className="mt-2 p-2 bg-white text-green-500 rounded w-full flex mx-2">
-                    <FaShoppingCart className="mr-8 text-green-500 w-8 h-8 " />
-                    IN STOCK
-                  </button>
+                    {/* Nút mua hàng */}
+                    <button className="mt-auto p-2 bg-white text-green-500 border border-green-500 rounded w-full flex items-center justify-center transition-all duration-300 hover:bg-green-500 hover:text-white">
+                      <FaShoppingCart className="mr-2 w-5 h-5" />
+                      IN STOCK                    
+                    </button>
+                  </div>
                 </div>
               );
             })}
