@@ -585,7 +585,7 @@ export const deleteUserDetails = async(request,response)=>{
 }
 export const updateUserProfile = async (request, response) => {
     try {
-        const { id, address, phone } = request.body;
+        const { id, address, phone, name, email } = request.body;
 
         if (!id) {
             return response.status(400).json({
@@ -599,7 +599,8 @@ export const updateUserProfile = async (request, response) => {
         const updateFields = {};
         if (address) updateFields.address = address;
         if (phone) updateFields.mobile = phone;
-
+        if (name) updateFields.name = name;
+        if (email) updateFields.email = email;
         const updateUser = await UserModel.updateOne(
             { _id: id },
             { $set: updateFields } // Chỉ cập nhật các trường email, phone

@@ -26,6 +26,8 @@ interface User {
 
 const Profile = () => {
   const [user, setUser] = useState<User>();
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
   const [openChangePassword, setOpenChangePassword] = useState(false);
@@ -33,7 +35,12 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
     if (storedUser) setUser(JSON.parse(storedUser));
+    setUserName(user?.name || ""); 
+    setUserEmail(user?.email || ""); 
+    setPhoneNumber(user?.mobile || ""); 
+    setAddress(user?.address || ""); 
   }, []);
   const handleChangePassword = async () => {
     // try {
@@ -95,6 +102,8 @@ const Profile = () => {
         id: user?._id,
         phone: phoneNumber,
         address: address,
+        name: userName, 
+        email: userEmail
       });
   
       if (response.data.success) {
@@ -102,7 +111,7 @@ const Profile = () => {
         
         setUser((prevUser) => {
           if (!prevUser) return prevUser;
-          const updatedUser = { ...prevUser, mobile: phoneNumber, address };
+          const updatedUser = { ...prevUser, mobile: phoneNumber, address, name: userName, email: userEmail};
           localStorage.setItem("user", JSON.stringify(updatedUser)); 
           return updatedUser;
         });
@@ -152,8 +161,11 @@ const Profile = () => {
 
             {/* Form nhập thông tin */}
             <div className="mt-6 space-y-4">
+              <TextField fullWidth label="Name" variant="outlined" value={userName} onChange={(e) => setUserName(e.target.value)} />
+              <TextField fullWidth label="Email" variant="outlined" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
               <TextField fullWidth label="Phone Number" variant="outlined" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
               <TextField fullWidth label="Address" variant="outlined" value={address} onChange={(e) => setAddress(e.target.value)} />
+              
             </div>
 
             {/* Nút Save */}
