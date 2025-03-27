@@ -78,11 +78,15 @@ const Profile = () => {
       reader.onloadend = () => {
         const avatarUrl = reader.result as string;
         setAvatar(avatarUrl);
-        localStorage.setItem('avatar', avatarUrl); // Lưu avatar vào localStorage
+        localStorage.setItem("avatar", avatarUrl);
+  
+        // Gửi sự kiện để Header.tsx cập nhật avatar
+        window.dispatchEvent(new Event("storage"));
       };
       reader.readAsDataURL(file);
     }
   };
+  
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -246,8 +250,8 @@ const Profile = () => {
                   <tr className="bg-gray-200">
                     <th className="py-2 px-4 border">Order ID</th>
                     <th className="py-2 px-4 border">Total Amount</th>
-                    <th className="py-2 px-4 border">Payment Status</th>
-                    <th className="py-2 px-4 border">Delivery Address</th>
+                    
+                    
                   </tr>
                 </thead>
                 <tbody>
@@ -255,7 +259,7 @@ const Profile = () => {
                     <tr key={order._id} className="text-center">
                       <td className="py-2 px-4 border">{order.orderId}</td>
                       <td className="py-2 px-4 border">${order.totalAmt}</td>
-                      <td className="py-2 px-4 border">{order.payment_status}</td>
+                      
                       
                     </tr>
                   ))}

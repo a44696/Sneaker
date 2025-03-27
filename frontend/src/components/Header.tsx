@@ -19,14 +19,27 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
 
 
   useEffect(() => {
-    const storedUserString = localStorage.getItem("user");
-    const storedUser = storedUserString && storedUserString !== "undefined" ? JSON.parse(storedUserString) : null;
-
-    if (storedUser) {
-      setUser({ name: storedUser.name, avatar: storedUser.avatar });
-    }
-  }, [localStorage.getItem("user")]);
-
+    const updateUserAvatar = () => {
+      const storedUserString = localStorage.getItem("user");
+      const storedUser = storedUserString && storedUserString !== "undefined" ? JSON.parse(storedUserString) : null;
+  
+      const storedAvatar = localStorage.getItem("avatar"); // Lấy avatar từ localStorage
+  
+      if (storedUser) {
+        setUser({ name: storedUser.name, avatar: storedAvatar || storedUser.avatar });
+      }
+    };
+  
+    updateUserAvatar(); // Cập nhật ngay khi component được mount
+  
+    // Lắng nghe sự thay đổi của localStorage
+    window.addEventListener("storage", updateUserAvatar);
+  
+    return () => {
+      window.removeEventListener("storage", updateUserAvatar);
+    };
+  }, []);
+  
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
