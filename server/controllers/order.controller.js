@@ -223,3 +223,52 @@ export const getOrderDetails = async(request,response)=>{
         })
     }
 }
+export const getOrderListController = async (request, response) => {
+    try {
+        const [data, totalCount] = await Promise.all([
+            OrderModel.find().sort({ createdAt: -1 }), // Lấy danh sách order, sắp xếp giảm dần theo ngày tạo
+            OrderModel.countDocuments()          // Đếm tổng số đơn hàng (Nhưng `query` chưa định nghĩa!)
+        ]);
+
+        return response.json({
+            message: "Order data",
+            error: false,
+            success: true,
+            data: data
+        });
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+};
+export const deleteOrderDetails = async(request,response)=>{
+    try {
+        const { _id } = request.body 
+
+        if(!_id){
+            return response.status(400).json({
+                message : "provide _id ",
+                error : true,
+                success : false
+            })
+        }
+
+        const deleteOrder = await OrderModel.deleteOne({_id : _id })
+
+        return response.json({
+            message : "Delete successfully",
+            error : false,
+            success : true,
+            data : deleteOrder
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}

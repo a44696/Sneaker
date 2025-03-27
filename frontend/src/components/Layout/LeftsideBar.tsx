@@ -1,143 +1,110 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Slider } from '@mui/material'; 
-import Button from '@mui/material/Button';
+import { Slider, TextField, Box, Typography, Button, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
+import axios from 'axios';
 const LeftsideBar = () => {
   const [priceRange, setPriceRange] = useState<number[]>([0, 10000000]);
-  const [selectedBrand, setSelectedBrand] = useState<string>('Tất cả sản phẩm');
-  const [selectedStatus, setSelectedStatus] = useState<string>('Tất cả sản phẩm');
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
+  const [categorys, setCategorys] = useState<string[]>([]);
   const navigate = useNavigate();
-
-  // Hàm thay đổi thương hiệu đã chọn
-  const handleBrandChange = (brand: string) => {
+  const fetchCategorys = async () => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/category/get');
+      const data = response.data.data;
+      setCategorys([{ name: "Tất cả sản phẩm", id: "" }, ...data.map((category: any) => ({ name: category.name, id: category._id }))]);
+    } catch (error) {
+      console.error('Error fetching categorys:', error);
+    }
+  }
+  useEffect(() => {
+    fetchCategorys();
+  },[]);
+  const handleBrandChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const brand = event.target.value;
     setSelectedBrand(brand);
-    // Chuyển hướng sang trang tìm kiếm với thương hiệu được chọn
     const queryParams = new URLSearchParams({
-      query: brand !== 'Tất cả sản phẩm' ? brand : '', // Chỉ thêm thương hiệu vào query khi không phải "Tất cả sản phẩm"
+      query: brand !== 'Tất cả sản phẩm' ? brand : '',
       minPrice: priceRange[0].toString(),
       maxPrice: priceRange[1].toString(),
-      brand: brand,
-      status: selectedStatus,
-    });
-    navigate(`/search-product?${queryParams.toString()}`);
-  };
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    setPriceRange(newValue as number[]); // Cập nhật giá trị slider
-  };
-  // Hàm thay đổi trạng thái sản phẩm đã chọn
-  const handleStatusChange = (status: string) => {
-    setSelectedStatus(status);
-    // Chuyển hướng sang trang tìm kiếm với trạng thái được chọn
-    const queryParams = new URLSearchParams({
-      query: '', // Truy vấn sản phẩm theo trạng thái không cần thiết, chỉ cần status
-      minPrice: priceRange[0].toString(),
-      maxPrice: priceRange[1].toString(),
-      brand: selectedBrand,
-      status: status,
+      category: brand,
     });
     navigate(`/search-product?${queryParams.toString()}`);
   };
 
-  // Hàm gọi API và chuyển hướng đến trang kết quả tìm kiếm khi lọc giá
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
+  };
+
+ 
+
   const handleFilter = () => {
     const queryParams = new URLSearchParams({
       minPrice: priceRange[0].toString(),
       maxPrice: priceRange[1].toString(),
-      brand: selectedBrand,
-      status: selectedStatus,
+      category: selectedBrand,
     });
-
+    setSelectedBrand("");
     navigate(`/search-product?${queryParams.toString()}`);
   };
 
   return (
-    <div className="container mx-auto p-4 mb-2">
-      <div>
-        <aside className="col-span-1 bg-gray-100 p-4 rounded">
-          {/* Bộ lọc giá */}
-          <div className="mb-4">
-      <h2 className="text-lg font-bold">Widget price filter</h2>
+    <Box className="container mx-auto p-4 mb-2" sx={{ backgroundColor: '#f9f9f9', padding: 3, borderRadius: 2 }}>
+      <Typography variant="h6" fontWeight="bold" gutterBottom>
+        Widget price filter
+      </Typography>
 
-      <div className="mt-4">
-        <Slider
-          value={priceRange}
-          onChange={handleSliderChange}
-          valueLabelDisplay="auto"
-          min={0}
-          max={10000000}
-          step={1000}
+      {/* Bộ lọc giá */}
+      <Box display="flex" alignItems="center" gap={2} sx={{ mb: 2 }}>
+        <TextField
+          label="Min price"
+          variant="outlined"
           size="small"
-          color="secondary"
-       
+          value={priceRange[0]}
+          onChange={(e) => setPriceRange([+e.target.value, priceRange[1]])}
+          sx={{ width: 100 }}
         />
-      </div>
+        <Typography variant="body2">-</Typography>
+        <TextField
+          label="Max price"
+          variant="outlined"
+          size="small"
+          value={priceRange[1]}
+          onChange={(e) => setPriceRange([priceRange[0], +e.target.value])}
+          sx={{ width: 100 }}
+        />
+      </Box>
 
-   
+      <Slider
+        value={priceRange}
+        onChange={handleSliderChange}
+        valueLabelDisplay="auto"
+        min={0}
+        max={10000000}
+        step={1000}
+        color="secondary"
+      />
 
-    
-      <Button variant="contained" color="secondary" className="w-full  p-2 rounded fw-bold" onClick={handleFilter}>Filter</Button>
-    </div>
+      <Typography variant="body2" sx={{ mt: 2, mb: 2 }}>
+        Price: ${priceRange[0]} — ${priceRange[1]}
+      </Typography>
 
-          {/* Danh mục sản phẩm */}
-          <div className="mb-4">
-            <h2 className="text-lg font-bold">Product Categories</h2>
-            {['Tất cả sản phẩm', 'Nike', 'Puma', 'Adidas', 'Vans', 'Converse', 'Bape', 'Supreme', 'Jordan', 'Yeezy', 'New Balance', 'Asics'].map(
-              (brand) => (
-                <div key={brand} className="flex items-center">
-                  <input
-                    type="radio"
-                    id={brand}
-                    name="brand"
-                    checked={selectedBrand === brand}
-                    onChange={() => handleBrandChange(brand)}
-                    className="mr-2"
-                  />
-                  <label htmlFor={brand} className="text-gray-700">{brand}</label>
-                </div>
-              )
-            )}
-          </div>
+      <Button variant="contained" color="secondary" fullWidth onClick={handleFilter}>
+        Filter
+      </Button>
 
-          {/* Trạng thái sản phẩm */}
-          <div className="mb-4">
-            <h2 className="text-lg font-bold">Product Status</h2>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="allProducts"
-                name="productStatus"
-                checked={selectedStatus === "Tất cả sản phẩm"}
-                onChange={() => handleStatusChange("Tất cả sản phẩm")}
-                className="mr-2"
-              />
-              <label htmlFor="allProducts" className="text-gray-700">Tất cả sản phẩm</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="inStock"
-                name="productStatus"
-                checked={selectedStatus === "In Stock"}
-                onChange={() => handleStatusChange("In Stock")}
-                className="mr-2"
-              />
-              <label htmlFor="inStock" className="text-gray-700">In Stock</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="onSale"
-                name="productStatus"
-                checked={selectedStatus === "On Sale"}
-                onChange={() => handleStatusChange("On Sale")}
-                className="mr-2"
-              />
-              <label htmlFor="onSale" className="text-gray-700">On Sale</label>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
+      {/* Danh mục sản phẩm */}
+      <FormControl sx={{ mt: 4 }}>
+        <FormLabel>Product Categories</FormLabel>
+        <RadioGroup value={selectedBrand} onChange={handleBrandChange}>
+          {categorys.map((brand:any) => (
+            <FormControlLabel key={brand.id} value={brand.id} control={<Radio />} label={brand.name} />
+          ))}
+        </RadioGroup>
+      </FormControl>
+
+      
+     
+    </Box>
   );
 };
 

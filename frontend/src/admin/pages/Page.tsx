@@ -123,4 +123,15 @@ const OrderShow = () => (
         ]}
     />
 );
-export { ProductList, CategoryCreate, CategoryEdit, OrderShow, UserList, UserEdit, Category, ProductEdit, ProductCreate, OrderList };
+const OrderEdit = () => (
+    <GenericEdit
+        resource="order"
+        fields={[
+            { source: "userName", label: "Name"},
+            { source: "orderId", label: "OrderId" },
+            { source: "createdAt", label: "Ngày Đặt", type: "date" },
+            { source: "payment_status", label: "Phương thức thanh toán" },
+        ]}
+    />
+);
+export { ProductList, OrderEdit, CategoryCreate, CategoryEdit, OrderShow, UserList, UserEdit, Category, ProductEdit, ProductCreate, OrderList };
