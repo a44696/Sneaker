@@ -583,6 +583,55 @@ export const deleteUserDetails = async(request,response)=>{
         })
     }
 }
+export async function changePasswordController(request, response) {
+    try {
+        const { email, oldPassword, newPassword } = request.body;
+
+        if (!email || !oldPassword || !newPassword) {
+            return response.status(400).json({
+                message: "Provide email, old password, and new password",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return response.status(404).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        const isMatch = await bcryptjs.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return response.status(400).json({
+                message: "Incorrect old password",
+                error: true,
+                success: false
+            });
+        }
+
+        const salt = await bcryptjs.genSalt(10);
+        const hashNewPassword = await bcryptjs.hash(newPassword, salt);
+
+        user.password = hashNewPassword;
+        await user.save();
+
+        return response.json({
+            message: "Password changed successfully",
+            error: false,
+            success: true
+        });
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
 export const updateUserProfile = async (request, response) => {
     try {
         const { id, address, phone, name, email } = request.body;
