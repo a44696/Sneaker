@@ -7,9 +7,10 @@ interface Product {
   _id: string;
   name: string;
   price: string;
-  image: [string];
+  image: string[];
   description: string;
   stock: number;
+  sizes: string[]; 
   discount: number;  // Thêm thuộc tính discount
 }
 
@@ -18,13 +19,15 @@ const ProductDetails: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState<number>(1); // Số lượng mặc định là 1
+  const [quantity, setQuantity] = useState<number>(1);
+  const [mainImage, setMainImage] = useState<string>(""); 
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const navigate = useNavigate();
 
 
   const handleBuyNow = () => {
     if (!product) return;
-    navigate(`/checkout?productId=${product._id}&quantity=${quantity}`);
+    navigate(`/checkout?productId=${product._id}&quantity=${quantity}&size=${selectedSize}`);
   };
   const fetchProductDetails = async (id: any) => { // ✅ Nhận id làm tham số
     setLoading(true);
@@ -43,6 +46,8 @@ const ProductDetails: React.FC = () => {
       console.log("🔥 API trả về chi tiết sản phẩm:", data);
       if (data.success) {
         setProduct(data.data);
+        setMainImage(data.data.image[0]);
+        setSelectedSize(data.data.sizes[0] || '');
       } else {
         setError('Sản phẩm không tìm thấy');
       }
@@ -74,6 +79,7 @@ const ProductDetails: React.FC = () => {
         body: JSON.stringify({
           productId: product._id,
           quantity: quantity,
+          size: selectedSize,
         }),
       });
 
@@ -140,8 +146,9 @@ const ProductDetails: React.FC = () => {
 
   // Tính giá sau khi giảm giá
   const discountedPrice = product.discount
-    ? (parseFloat(product.price) * (1 - product.discount / 100)).toFixed(2)
-    : product.price;
+  ? (parseFloat(product.price) * (1 - product.discount / 100)).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+  : parseFloat(product.price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
 
   return (
     <div className="container mx-auto p-4">
@@ -149,13 +156,27 @@ const ProductDetails: React.FC = () => {
       <div className="text-sm text-gray-500 mb-4">
         <span className="text-gray-400">Home</span> &gt; <span className="font-semibold">{product.name}</span>
       </div>
+      
       <div className="flex">
         <div className="w-1/2">
+          {/* Ảnh chính */}
           <img
-            src={product.image[0]}
+            src={mainImage}
             alt={product.name}
-            className="w-full h-96 object-cover mb-4"
+            className="w-full h-96 object-contain mb-4"
           />
+          <div className="flex gap-5 justify-center">
+            {/* Ảnh phụ */}
+            {product.image.slice(1, 5).map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`product-${index}`}
+                className="w-24 h-24 object-contain cursor-pointer border"
+                onClick={() => setMainImage(img)} // Khi click vào ảnh phụ sẽ thay đổi ảnh chính
+              />
+            ))}
+          </div>
         </div>
         <div className="w-1/2 pl-8">
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
@@ -165,8 +186,8 @@ const ProductDetails: React.FC = () => {
           <div className="mb-4">
             {product.discount ? (
               <p className="text-xl text-red-500 font-bold mb-4">
-                {discountedPrice} VNĐ
-                <span className="text-gray-500 line-through ml-2">{product.price} VNĐ</span>
+                {discountedPrice}
+                <span className="text-gray-500 line-through ml-2">{product.price} đ</span>
               </p>
             ) : (
               <p className="text-xl text-red-500 font-bold mb-4">{product.price} VNĐ</p>
@@ -199,6 +220,24 @@ const ProductDetails: React.FC = () => {
             >
               +
             </button>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="size" className="text-lg font-medium">Chọn Size:</label>
+            <div className="flex gap-4">
+              {product.sizes.map((size, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedSize(size)}
+                  className={`px-6 py-2 text-lg font-semibold rounded-full transition-all duration-300 ease-in-out ${
+                    selectedSize === size
+                      ? 'bg-gray-600 text-white shadow-lg scale-105'
+                      : 'bg-white text-gray-600 border-2 border-gray-600 hover:bg-gray-600 hover:text-white'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex">
             <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
