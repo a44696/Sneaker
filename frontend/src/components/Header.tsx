@@ -3,6 +3,7 @@ import { FaUser, FaHeart, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Autocomplete, CircularProgress } from "@mui/material";
 import axios from "axios";
+import { Refresh } from "@mui/icons-material";
 
 interface HeaderProps {
   search: string;
@@ -11,7 +12,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   const [likedCount, setLikedCount] = useState(0);
-  const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
+  const [user, setUser] = useState<{ name: string; avatar: string; role: string | null } | null>(null);
   const [productOptions, setProductOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
 
 
   useEffect(() => {
+
     const updateUserAvatar = () => {
       const storedUserString = localStorage.getItem("user");
       const storedUser = storedUserString && storedUserString !== "undefined" ? JSON.parse(storedUserString) : null;
@@ -40,6 +42,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
     };
   }, []);
   
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -172,12 +175,23 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
               <FaSearch className="text-gray-500" />
             </a>
             {user ? (
-              <div className="relative group">
+              <div className="relative group z-20">
                 <img src={user.avatar || "/default-avatar.png"} alt="User Avatar" className="w-8 h-8 rounded-full cursor-pointer" />
                 <div className="hidden group-hover:block absolute right-0 bg-white shadow-md rounded-md w-40 py-2">
                   <button onClick={() => navigate("/user-profile")} className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                     {user.name}
                   </button>
+                  {user?.role === "ADMIN" && (
+                      <button 
+                      onClick={() => {
+                        navigate("/admin");
+                        window.location.reload(); // Reload lại trang sau khi chuyển hướng
+                      }}
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
                   <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
                 </div>
               </div>
@@ -203,8 +217,8 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
 
         <nav className="border-t px-6 flex justify-between">
           <ul className="flex gap-6 py-3 text-gray-700 font-medium">
-            <li><Link to="/home" className="hover:text-red-500">Home ▾</Link></li>
-            <li><Link to="/" className="hover:text-red-500">Shop ▾</Link></li>
+            <li><Link to="/" className="hover:text-red-500">Home ▾</Link></li>
+            <li><Link to="/shop" className="hover:text-red-500">Shop ▾</Link></li>
             <li><Link to="/sneakers" className="hover:text-red-500">Sneakers</Link></li>
             <li><Link to="/accessories" className="hover:text-red-500">Clothes & Accessories</Link></li>
             <li><Link to="/blog" className="hover:text-red-500">Blog</Link></li>

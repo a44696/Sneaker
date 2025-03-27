@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { Admin, Resource, CustomRoutes } from 'react-admin';
 import authProvider from './admin/component/authProvider.tsx'; 
 import CustomLayout from './admin/layouts/default';
-import { ProductList, CategoryCreate, CategoryEdit, UserList, OrderEdit, Category, ProductEdit, UserEdit, OrderShow, ProductCreate, OrderList } from './admin/pages/Page';
+import { ProductList, CategoryCreate, CategoryEdit, UserList, Category, ProductEdit, UserEdit, OrderShow, ProductCreate, OrderList } from './admin/pages/Page';
 import myDataProvider from './admin/component/customDataProvider';
 import Login from './admin/component/login';
 import Dashboard from './admin/pages/Dashboard';
@@ -32,8 +32,8 @@ import HomePage from './page/home/Home.tsx';
         <Routes>
           {/* Các route frontend */}
           <Route path="/" element={<Layout search={search} setSearch={setSearch} />}>
-            <Route index element={<ProductListPage search={search} setSearch={setSearch} />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route index element={<HomePage />} />
+            <Route path="/shop" element= {<ProductListPage search={search} setSearch={setSearch} />}/>
             <Route path="/product-details/:id" element={<ProductDetails />} />
             <Route path="/search-product" element={<SearchResults search={search} />} />
             <Route path="/cart" element={<Cart />} />
@@ -49,7 +49,6 @@ import HomePage from './page/home/Home.tsx';
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Route dành cho admin */}
         
         </Routes>
       </Router>
@@ -78,7 +77,7 @@ import HomePage from './page/home/Home.tsx';
             <Resource name="product" list={ProductList} create={ProductCreate} edit={ProductEdit} />
             <Resource name="user" list={UserList} edit={UserEdit} />
             <Resource name="category" list={Category} edit={CategoryEdit} create={CategoryCreate} />
-            <Resource name="order" list={OrderList} edit={OrderEdit} show={OrderShow} />
+            <Resource name="order" list={OrderList} edit={OrderShow} />
           
           </Admin>
         }
