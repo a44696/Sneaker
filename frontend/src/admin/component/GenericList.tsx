@@ -76,13 +76,11 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
                     label=""
                     sx={{ textAlign: 'center' }}
                     render={(record) =>{
-                        console.log('Record from GenericList:', record);
+                       
                         return (
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                                {resource === "order" && (
-                                    <ShowButton record={record} />
-                                )
-                                }
+                                
+                                
                                 <EditButton record={record} />
                                 <DeleteButton record={record} />
                             </div>

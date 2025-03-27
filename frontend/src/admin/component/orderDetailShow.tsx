@@ -74,7 +74,7 @@ console.log(record);
           );
         }
 
-        return <TextInput key={field.source} source={field.source} label={field.label} disabled />;
+        return <TextInput key={field.source} source={field.source} label={field.label}  />;
       })}
     </SimpleForm>
   );
