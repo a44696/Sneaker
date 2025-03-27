@@ -68,24 +68,30 @@ const ProductRelative: React.FC<{ currentProductId: string }> = ({ currentProduc
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {products.map((product) => (
-          <div key={product._id} className="border p-4 rounded-lg gap-2">
-            <img src={product.image[0]} alt={product.name} className="w-full h-48 object-cover mb-4 object-contain" />
-            <h3 className="text-xl font-semibold">{product.name}</h3>
-            <p className="text-lg text-red-500 font-semibold text-right">{product.price} VNĐ</p>
-            <div className="flex-grow" /> 
-            <Link
-              to={`/product-details/${product._id}`}
-              className="block text-center justify-center mt-2 text-blue-500 "
-            >
-              Xem chi tiết
-            </Link>
-          </div>
-        ))}
-      </div>
+    <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      {products.map((product) => (
+        <div key={product._id} className="border p-4 rounded-lg flex flex-col h-full">
+          {/* Ảnh sản phẩm */}
+          <img src={product.image[0]} alt={product.name} className="w-full h-48  mb-4 object-contain" />
+          
+          {/* Tên sản phẩm */}
+          <h3 className="text-xl font-semibold flex-grow">{product.name}</h3>
+          
+          {/* Giá sản phẩm */}
+          <p className="text-lg text-red-500 font-semibold text-right">{product.price} VNĐ</p>
+          
+          {/* Nút xem chi tiết */}
+          <Link
+            to={`/product-details/${product._id}`}
+            className="block text-center mt-4 text-blue-500 border-t pt-2"
+          >
+            Xem chi tiết
+          </Link>
+        </div>
+      ))}
     </div>
+  </div>
   );
 };
 

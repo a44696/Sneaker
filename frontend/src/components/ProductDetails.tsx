@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaShieldAlt, FaShoppingCart, FaWallet } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams để lấy params từ URL
 import ProductRelative from "./ProductRelative";
-
+import CommentSection from "./CommentSection";
 interface Product {
   _id: string;
   name: string;
@@ -266,6 +266,15 @@ const ProductDetails: React.FC = () => {
           </div>
       </div>
       <ProductRelative currentProductId={id!} />
+      <div className="mt-8">
+      <div className="border-b flex space-x-8 text-gray-600">
+        <button className="pb-2 border-b-2 border-black font-semibold text-black">Description</button>
+      </div>
+      <div className="mt-4 mb-12 text-gray-700 leading-relaxed">
+        <p>{product.description}</p>
+      </div>
+    </div>
+      <CommentSection productId={id} />
     </div>
   );
 };

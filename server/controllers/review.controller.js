@@ -1,11 +1,11 @@
-import ReviewModel from "../models/ReviewModel.js";
-import ProductModel from "../models/ProductModel.js";
+import ReviewModel from "../models/review.model.js";
+import ProductModel from "../models/product.model.js";
 
 export async function createReviewController(request, response) {
     try {
         const { user, product, rating, comment } = request.body;
 
-        if (!user || !product || !rating || !comment) {
+        if (!user || !product || !rating) {
             return response.status(400).json({
                 message: "Provide user, product, rating, and comment",
                 error: true,
@@ -42,9 +42,9 @@ export async function createReviewController(request, response) {
 
 export async function getReviewsByProductController(request, response) {
     try {
-        const { productId } = request.params;
+        const { productId } = request.body;
 
-        const reviews = await ReviewModel.find({ product: productId }).populate("user", "name email");
+        const reviews = await ReviewModel.find({ product: productId }).populate("user", "name avatar email");
 
         return response.json({
             message: "Reviews fetched successfully",
@@ -63,7 +63,7 @@ export async function getReviewsByProductController(request, response) {
 
 export async function deleteReviewController(request, response) {
     try {
-        const { reviewId } = request.params;
+        const { reviewId } = request.body;
 
         const review = await ReviewModel.findByIdAndDelete(reviewId);
         if (!review) {

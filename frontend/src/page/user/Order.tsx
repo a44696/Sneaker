@@ -107,7 +107,7 @@ const OrderPage = () => {
                       className={`px-3 py-1 text-xs font-semibold rounded-full ${
                         order.payment_status === "CASH ON DELIVERY"
                           ? "bg-green-100 text-green-700"
-                          : order.payment_status === "Pending"
+                          : order.payment_status === "PENDING"
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}

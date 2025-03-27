@@ -43,7 +43,7 @@ app.use("/api/file",uploadRouter)
 app.use("/api/product",productRouter)
 app.use("/api/cart",cartRouter)
 app.use('/api/order',orderRouter)
-app,use('/api/review',reviewRouter)
+app.use('/api/review',reviewRouter)
 
 
 connectDB().then(()=>{
