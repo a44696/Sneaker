@@ -22,6 +22,10 @@ const orderSchema = new mongoose.Schema(
           required: true,
           min: 1,
         },
+        size: {
+          type: Number,
+          required: true,
+        },
       },
     ],
     payment_status: {
