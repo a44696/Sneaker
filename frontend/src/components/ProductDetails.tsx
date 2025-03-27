@@ -97,7 +97,7 @@ const ProductDetails: React.FC = () => {
         localStorage.setItem("cart", JSON.stringify(cart));
 
         // Kích hoạt sự kiện để cập nhật Header
-        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new Event("cartUpdated"));
 
         navigate("/cart"); // Chuyển hướng đến giỏ hàng
       } else {
