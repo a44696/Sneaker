@@ -229,15 +229,15 @@ const HomePage = () => {
       <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="grid grid-cols-3 gap-6 px-8 pb-8">
         {productsSection.map((product) => (
             
-            <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} key={product.id}  className="relative rounded-lg shadow-lg overflow-hidden">
+            <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} key={product.id}  className=" relative rounded-lg shadow-lg overflow-hidden">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-64 object-cover"
+              className="w-full h-64 object-cover "
             />
             <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="absolute bottom-0 bg-gradient-to-t from-black to-transparent p-4 w-full">
               <h3 className="text-white font-bold text-lg">{product.name}</h3>
-              <button onClick={() => navigate("/")} className="mt-2 bg-white text-black px-4 py-2 rounded-lg font-semibold hover:bg-gray-400">
+              <button onClick={() => navigate("/shop")} className="mt-2 bg-white text-black px-4 py-2 rounded-lg font-semibold hover:bg-gray-400">
                 Shop Now
               </button>
             </motion.div>
@@ -258,7 +258,7 @@ const HomePage = () => {
             </Typography>
         </motion.div>
         <Button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/shop")}
         variant="outlined"
         color="neutral"
         className="!rounded-full !normal-case !font-semibold !border-gray-300 text-gray-600 px-4 py-1 text-sm hover:bg-gray-100"
@@ -297,7 +297,7 @@ const HomePage = () => {
             {product.description || "Limited-time offer on our best products!"}
           </Typography>
           <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/shop")}
           variant="contained"
           color="default"
           className="!bg-white !font-semibold !text-black !rounded-full !mt-2 !px-4 !py-2"
@@ -321,7 +321,7 @@ const HomePage = () => {
             </Typography>
         </motion.div>
         <Button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/shop")}
         variant="outlined"
         color="neutral"
         className="!rounded-full !normal-case !font-semibold !border-gray-300 text-gray-600 px-4 py-1 text-sm hover:bg-gray-100"
@@ -431,7 +431,7 @@ const HomePage = () => {
 
         {/* Nút CTA */}
         <Button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/shop")}
         variant="outlined"
         color="neutral"
         className="!mt-6 !bg-white !text-black !font-bold !px-5 !py-3 !rounded-full !flex !items-center !w-max !hover:bg-gray-200 !transition"
@@ -452,7 +452,7 @@ const HomePage = () => {
             </Typography>
         </motion.div>
         <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/shop")}
             variant="outlined"
             color="neutral"
             className="!rounded-full !normal-case !font-semibold !border-gray-300 text-gray-600 px-4 py-1 text-sm hover:bg-gray-100"
@@ -533,7 +533,7 @@ const HomePage = () => {
               
                       {/* Nút CTA */}
                       <Button
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/shop")}
                         variant="outlined"
                         color="neutral"
                         className="!mt-6 !bg-white !text-black !font-bold !px-5 !py-3 !rounded-full !flex !items-center !w-max !hover:bg-gray-200 !transition"

@@ -32,8 +32,8 @@ import HomePage from './page/home/Home.tsx';
         <Routes>
           {/* Các route frontend */}
           <Route path="/" element={<Layout search={search} setSearch={setSearch} />}>
-            <Route index element={<ProductListPage search={search} setSearch={setSearch} />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route index element={<HomePage />} />
+            <Route path="/shop" element= {<ProductListPage search={search} setSearch={setSearch} />}/>
             <Route path="/product-details/:id" element={<ProductDetails />} />
             <Route path="/search-product" element={<SearchResults search={search} />} />
             <Route path="/cart" element={<Cart />} />
@@ -49,7 +49,6 @@ import HomePage from './page/home/Home.tsx';
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Route dành cho admin */}
         
         </Routes>
       </Router>
