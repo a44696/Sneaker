@@ -3,7 +3,7 @@ import { FaUser, FaHeart, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Autocomplete, CircularProgress } from "@mui/material";
 import axios from "axios";
-import { Refresh } from "@mui/icons-material";
+
 
 interface HeaderProps {
   search: string;
@@ -213,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
           <div className="flex gap-6 py-3 text-gray-700 font-medium">
             <a href="#" className="hover:text-gray-800">Trending Products ▾</a>
             <a href="#" className="hover:text-red-500 text-red-500 flex gap-2">
-              <div className="px-2 rounded-md bg-red-500 text-white px-3 py-1">Sale</div>
+              <div className=" rounded-md bg-red-500 text-white px-3 py-1">Sale</div>
               <span>▾</span>
             </a>
           </div>

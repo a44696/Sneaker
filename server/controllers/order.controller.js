@@ -74,7 +74,6 @@ export async function getOrderDetailsbyUserController(request, response) {
 
         const orderList = await OrderModel.find({ userId: userId })
             .sort({ createdAt: -1 })
-            .populate("delivery_address")
             .populate("products.productId");
 
         if (!orderList || orderList.length === 0) {

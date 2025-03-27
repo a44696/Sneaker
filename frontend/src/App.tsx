@@ -23,6 +23,7 @@ import VerifyEmailPage from "./page/auth/VerifyEmailPage";
 import UserProfile from "./page/user/Profile";
 import { useState } from "react";
 import HomePage from './page/home/Home.tsx';
+import Order from './page/user/Order.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
 
@@ -39,6 +40,7 @@ import HomePage from './page/home/Home.tsx';
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<CheckOutList />} />
             <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/user-order" element={<Order />} />
             <Route path="/login" element={<AuthPage />} />
             <Route path="/signup" element={<SignInPage />} />
           </Route>

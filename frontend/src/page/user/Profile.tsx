@@ -1,222 +1,206 @@
 import React, { useState, useEffect } from "react";
+import { Button, TextField, Avatar, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import axios from "axios";
+import { Link } from "react-router-dom";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
+interface User {
+  _id: string;
+  avatar: string;
+  name: string;
+  email: string;
+  mobile: string;
+  address: string;
+  role: string;
+}
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("info");
-  const [currentPassword, setCurrentPassword] = useState("");
+  const [user, setUser] = useState<User>();
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [openChangePassword, setOpenChangePassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [address, setAddress] = useState<string>(""); 
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-
-  const [error, setError] = useState<string | null>(null); // State to store error messages
-
-  const handleSaveChanges = () => {
-    // Kiểm tra số điện thoại hợp lệ
-    const phoneRegex = /^[0-9]{10,15}$/; // Định dạng số điện thoại (có thể thay đổi tùy theo yêu cầu)
-    if (!phoneRegex.test(phoneNumber)) {
-      setError("Số điện thoại không hợp lệ. Vui lòng nhập lại.");
-      return;
-    }
-
-    // Lưu các thay đổi vào localStorage
-    localStorage.setItem("address", address);
-    localStorage.setItem("phoneNumber", phoneNumber);
-
-    // Hiển thị thông báo thành công
-    alert("Thay đổi thành công!");
-
-    console.log("Changes saved successfully");
-  };
-
-  const handleSavePasswordChanges = () => {
-    if (newPassword === confirmPassword) {
-      console.log("Password changed successfully");
-      alert("Mật khẩu đã thay đổi thành công.");
-    } else {
-      console.log("Passwords do not match");
-      alert("Mật khẩu mới và mật khẩu xác nhận không trùng khớp.");
-    }
-  };
-
   useEffect(() => {
-    const userInfo = localStorage.getItem("user");
-    if (userInfo) {
-      const parsedUserInfo = JSON.parse(userInfo);
-      setUsername(parsedUserInfo.name);
-      setEmail(parsedUserInfo.email);
-    } else {
-      console.log("No user info found.");
-    }
-
-    const storedAvatar = localStorage.getItem('avatar');
-    if (storedAvatar) {
-      setAvatar(storedAvatar);
-    }
-
-    const storedAddress = localStorage.getItem("address");
-    if (storedAddress) {
-      setAddress(storedAddress);
-    }
-
-    const storedPhoneNumber = localStorage.getItem("phoneNumber");
-    if (storedPhoneNumber) {
-      setPhoneNumber(storedPhoneNumber);
-    }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
+  const handleChangePassword = async () => {
+    // try {
+    //   const response = await axios.put("http://localhost:8080/api/user/change-password", {
+    //     userId: user?._id,
+    //     oldPassword,
+    //     newPassword,
+    //   });
 
-  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //   if (response.data.success) {
+    //     alert("Đổi mật khẩu thành công!");
+    //     setOpenChangePassword(false);
+    //     setOldPassword("");
+    //     setNewPassword("");
+    //   } else {
+    //     throw new Error(response.data.message || "Lỗi không xác định");
+    //   }
+    // } catch (err) {
+    //   console.error("Lỗi khi đổi mật khẩu:", err);
+    //   alert("Đổi mật khẩu thất bại! Vui lòng thử lại.");
+    // }
+  };
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const avatarUrl = reader.result as string;
-        setAvatar(avatarUrl);
-        localStorage.setItem('avatar', avatarUrl); // Lưu avatar vào localStorage
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    
+    try {
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("userId", user?._id || "");
+
+        const response = await axios.put("http://localhost:8080/api/user/upload-avatar", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+
+        if (response.data.success) {
+            alert("Cập nhật ảnh đại diện thành công!");
+            setUser((prevUser) => prevUser ? { ...prevUser, avatar: response.data.data.avatar } : prevUser);
+            localStorage.setItem("user", JSON.stringify({ 
+                ...JSON.parse(localStorage.getItem("user") || "{}"), 
+                avatar: response.data.data.avatar 
+            }));
+        } else {
+            throw new Error(response.data.message || "Lỗi không xác định");
+        }
+    } catch (err) {
+        console.error("Lỗi khi tải ảnh lên:", err);
+        alert("Tải ảnh thất bại! Vui lòng thử lại.");
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const response = await axios.put("http://localhost:8080/api/user/update-profile", {
+        id: user?._id,
+        phone: phoneNumber,
+        address: address,
+      });
+  
+      if (response.data.success) {
+        alert("Thay đổi thành công!");
+        
+        setUser((prevUser) => {
+          if (!prevUser) return prevUser;
+          const updatedUser = { ...prevUser, mobile: phoneNumber, address };
+          localStorage.setItem("user", JSON.stringify(updatedUser)); 
+          return updatedUser;
+        });
+  
+      } else {
+        throw new Error(response.data.message || "Lỗi không xác định");
+      }
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Cập nhật thất bại! Vui lòng thử lại.");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <div className="flex space-x-6 mb-6">
-        <button
-          onClick={() => setActiveTab("info")}
-          className={`px-4 py-2 text-lg font-semibold ${activeTab === "info" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"} rounded-md`}
-        >
-          Personal Information
-        </button>
-        <button
-          onClick={() => setActiveTab("password")}
-          className={`px-4 py-2 text-lg font-semibold ${activeTab === "password" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"} rounded-md`}
-        >
-          Change Password
-        </button>
-        <button
-          onClick={() => setActiveTab("orders")}
-          className={`px-4 py-2 text-lg font-semibold ${activeTab === "orders" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"} rounded-md`}
-        >
-          Order History
-        </button>
+    <div className="flex bg-gray-100 min-h-screen">
+      {/* Sidebar */}
+      <div className="w-1/6 bg-white p-6 shadow-md">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">My Account</h2>
+        <ul className="space-y-4">
+          <li className="text-blue-500 font-semibold">Profile</li>
+          <li className="text-gray-500 hover:text-blue-500 cursor-pointer">
+            <Link to="/user-order">Order</Link>
+          </li>
+        </ul>
       </div>
 
-      {activeTab === "info" && (
-        <div>
-          <div className="flex items-center gap-4">
-            <img
-              src={avatar || "/cover-images/default-avatar.jpg"}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full border-2 border-gray-300"
-            />
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-800">{username || "Username"}</h2>
-              <p className="text-sm text-gray-600">{email || "Email"}</p>
+      {/* Profile Card */}
+      <div className="flex-1 p-8">
+        <Card className="shadow-lg rounded-lg">
+          <CardContent>
+            <div className="relative">
+              <div className="w-full h-64 bg-gradient-to-r from-blue-300 to-yellow-100 rounded-t-lg flex flex-col items-center -mt-1">
+                <Avatar
+                  src={user?.avatar || "/cover-images/default-avatar.jpg"}
+                  className="!w-28 !h-28 border-4 border-white shadow-md !mt-4"
+                />
+                <label className="mt-2">
+                  <Button variant="contained" component="span">
+                    Change Photo
+                  </Button>
+                  <VisuallyHiddenInput type="file" accept="image/*" onChange={handlePhotoChange} />
+                </label>
+                <h2 className="text-xl font-semibold text-gray-800 mt-2">{user?.name}</h2>
+                <p className="text-gray-500">{user?.email}</p>
+              </div>
             </div>
-          </div>
 
-          <div className="mt-4">
-            <button
-              onClick={() => document.getElementById('avatarInput')?.click()}
-              className="px-6 py-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 transition duration-200"
-            >
-              Change Photo
-            </button>
-            <input
-              id="avatarInput"
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="hidden"
-            />
-          </div>
+            {/* Form nhập thông tin */}
+            <div className="mt-6 space-y-4">
+              <TextField fullWidth label="Phone Number" variant="outlined" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+              <TextField fullWidth label="Address" variant="outlined" value={address} onChange={(e) => setAddress(e.target.value)} />
+            </div>
 
-          <div className="mt-6 space-y-4">
-            <input
-              type="text"
-              placeholder="Username"
-              value={username || ""}
-              disabled
-              className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email || ""}
-              disabled
-              className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <input
-              type="text"
-              placeholder="Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          {error && <div className="text-red-500 mt-2">{error}</div>} {/* Hiển thị thông báo lỗi nếu có */}
-
-          <div className="mt-6">
-            <button
-              onClick={handleSaveChanges}
-              className="w-full py-3 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition duration-200"
-            >
-              Save Changes
-            </button>
-          </div>
-        </div>
-      )}
-
-      {activeTab === "password" && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Change Password</h3>
-          <input
+            {/* Nút Save */}
+            <div className="grid grid-cols-2 gap-6 mt-6">
+             <Button onClick={() => setOpenChangePassword(true)} variant="contained" color="secondary" fullWidth>
+                Change Password
+              </Button>
+              <Button onClick={handleSaveChanges} variant="contained" color="primary" fullWidth>
+                Save Changes
+              </Button>
+             
+            </div>
+            
+            
+          </CardContent>
+        </Card>
+      </div>
+      <Dialog open={openChangePassword} onClose={() => setOpenChangePassword(false)}>
+        <DialogTitle>Change Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Current Password"
             type="password"
-            placeholder="Current Password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            fullWidth
+            variant="outlined"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            margin="dense"
           />
-          <input
+          <TextField
+            label="New Password"
             type="password"
-            placeholder="New Password"
+            fullWidth
+            variant="outlined"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            margin="dense"
           />
-          <input
-            type="password"
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-          <div className="mt-4">
-            <button
-              onClick={handleSavePasswordChanges}
-              className="w-full py-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 transition duration-200"
-            >
-              Save Password
-            </button>
-          </div>
-        </div>
-      )}
-      {activeTab === "orders" && (
-        <div>
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Order History</h3>
-          {/* Nội dung lịch sử đơn hàng sẽ thêm sau */}
-        </div>
-      )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenChangePassword(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleChangePassword} color="primary" variant="contained">
+            Change Password
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

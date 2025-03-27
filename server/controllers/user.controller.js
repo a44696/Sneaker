@@ -157,7 +157,7 @@ export async function loginController(request,response){
             })
         }
 
-        const user = await UserModel.findOne({ email })
+        const user = await UserModel.findOne({ email }).select('-address_details -forgot_password_expiry -forgot_password_otp -orderHistory -shopping_cart')
 
         if(!user){
             return response.status(400).json({
@@ -253,13 +253,13 @@ export async function logoutController(request,response){
 }
 
 //upload user avatar
-export async  function uploadAvatar(request,response){
+export async function uploadAvatar(request,response){
     try {
         const userId = request.userId // auth middlware
         const image = request.file  // multer middleware
 
         const upload = await uploadImageClodinary(image)
-        
+       
         const updateUser = await UserModel.findByIdAndUpdate(userId,{
             avatar : upload.url
         })
@@ -275,6 +275,7 @@ export async  function uploadAvatar(request,response){
         })
 
     } catch (error) {
+        
         return response.status(500).json({
             message : error.message || error,
             error : true,
@@ -582,3 +583,40 @@ export const deleteUserDetails = async(request,response)=>{
         })
     }
 }
+export const updateUserProfile = async (request, response) => {
+    try {
+        const { id, address, phone } = request.body;
+
+        if (!id) {
+            return response.status(400).json({
+                message: "Provide User ID",
+                error: true,
+                success: false
+            });
+        }
+
+        // Tạo đối tượng chỉ chứa email và phone nếu chúng tồn tại trong request
+        const updateFields = {};
+        if (address) updateFields.address = address;
+        if (phone) updateFields.mobile = phone;
+
+        const updateUser = await UserModel.updateOne(
+            { _id: id },
+            { $set: updateFields } // Chỉ cập nhật các trường email, phone
+        );
+
+        return response.json({
+            message: "Updated successfully",
+            data: updateUser,
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+};
