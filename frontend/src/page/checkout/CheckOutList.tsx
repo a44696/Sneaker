@@ -77,19 +77,25 @@ const CheckOutList: React.FC = () => {
   };
 
   useEffect(() => {
+    
     const fetchDetails = async () => {
-      if (orderData.products.length > 0) {
-        const data = await Promise.all(
-          orderData.products.map(async (product) => {
-            const productDetails = await fetchProductDetails(product.productId); // Chờ fetch hoàn tất
-            return {
-              quantity: product.quantity,
-              data: productDetails, // Trả về dữ liệu đã resolve
-            };
-          })
-        );
-        setProductsDetail(data); // Cập nhật state với dữ liệu đã resolve
-        console.log(data); // Giờ đây, 'data' là mảng các object, không phải Promise
+      try {
+        if (orderData.products.length > 0) {
+          const data = await Promise.all(
+            orderData.products.map(async (product) => {
+              const productDetails = await fetchProductDetails(product.productId);
+              return productDetails
+                ? { quantity: product.quantity, data: productDetails }
+                : null;
+            })
+          );
+          // Loại bỏ phần tử null (do lỗi API)
+          setProductsDetail(data.filter((item) => item !== null));
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+      } finally {
+        setLoading(false);
       }
     };
   
@@ -102,7 +108,7 @@ const CheckOutList: React.FC = () => {
       address: "",
       name: "",
       email: "",
-      mobile: "",
+      phoneNumber: "",
     };
     
     if (user) {
@@ -110,22 +116,23 @@ const CheckOutList: React.FC = () => {
         const parsedUser = JSON.parse(user); // Parse chuỗi thành object
         userData = {
           id: parsedUser._id || "",
-          address: parsedUser.address_details || "",
+          address: parsedUser.address || "",
           name: parsedUser.name || "",
           email: parsedUser.email || "",
-          mobile: parsedUser.mobile || "",
+          phoneNumber: parsedUser.phoneNumber || "",
         };
       } catch (error) {
         console.error("Failed to parse user data from localStorage:", error);
       }
     }
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       Name: userData.name,
       address: userData.address,
-      phone: userData.mobile,
+      phone: userData.phoneNumber,
       email: userData.email,
-    })
+    }));
+    
     setUser(userData)// Lấy userId từ localStorage
     const userId = user ? JSON.parse(user)._id : null;
     if (!userId) {

@@ -71,7 +71,7 @@ const Profile = () => {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
         });
-
+        
         if (response.data.success) {
             alert("Cập nhật ảnh đại diện thành công!");
             setUser((prevUser) => prevUser ? { ...prevUser, avatar: response.data.data.avatar } : prevUser);
@@ -79,6 +79,7 @@ const Profile = () => {
                 ...JSON.parse(localStorage.getItem("user") || "{}"), 
                 avatar: response.data.data.avatar 
             }));
+            window.location.reload();
         } else {
             throw new Error(response.data.message || "Lỗi không xác định");
         }

@@ -19,7 +19,12 @@ const ProductRelative: React.FC<{ currentProductId: string }> = ({ currentProduc
 
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/product/get'); // API lấy tất cả sản phẩm
+        const response = await fetch("http://localhost:8080/api/product/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          
+        });
+      
         if (!response.ok) {
           throw new Error('Không thể tải danh sách sản phẩm');
         }
@@ -67,7 +72,7 @@ const ProductRelative: React.FC<{ currentProductId: string }> = ({ currentProduc
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => (
           <div key={product._id} className="border p-4 rounded-lg">
-            <img src={product.image} alt={product.name} className="w-full h-48 object-cover mb-4" />
+            <img src={product.image} alt={product.name} className="w-full h-48 object-cover mb-4 object-fit-cover" />
             <h3 className="text-xl font-semibold">{product.name}</h3>
             <p className="text-lg text-red-500">{product.price} VNĐ</p>
             <Link

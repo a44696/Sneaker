@@ -23,7 +23,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
   const [likedProducts, setLikedProducts] = useState<number[]>([]); // State để theo dõi các sản phẩm đã thích
 
   
-  const navigate = useNavigate();  // Khởi tạo navigate
+  const navigate = useNavigate();  // Khởi tạo navigate 
 
   const fetchProducts = async () => {
     try {
