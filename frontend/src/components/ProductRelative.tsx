@@ -1,7 +1,7 @@
 // ProductRelative.tsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import ProductRate from "./ProductRate";
 interface Product {
   _id: string;  // Đổi từ id -> _id
   name: string;
@@ -77,7 +77,7 @@ const ProductRelative: React.FC<{ currentProductId: string }> = ({ currentProduc
           
           {/* Tên sản phẩm */}
           <h3 className="text-xl font-semibold flex-grow">{product.name}</h3>
-          
+          <ProductRate productId = {product._id} />
           {/* Giá sản phẩm */}
           <p className="text-lg text-red-500 font-semibold text-right">{product.price} VNĐ</p>
           

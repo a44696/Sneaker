@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Pagination } from "@mui/material"; // Import Pagination
 import LeftsideBar from "../../components/Layout/LeftsideBar";
-
+import ProductRate from "../../components/ProductRate";
 const SearchResults = ({ search }: { search: string }) => {
   const [products, setProducts] = useState<any[]>([]);
   const [searchParams] = useSearchParams();
@@ -105,8 +105,9 @@ const SearchResults = ({ search }: { search: string }) => {
                     />
                     <div className="mt-2">
                       <h3 className="font-bold text-lg truncate">{product.name}</h3>
+                      <ProductRate productId = {product.id} />
                       <p className="text-red-500 font-bold mt-2 text-right">
-                        {product.price.toLocaleString()} VNĐ
+                        {product.price.toLocaleString()} đ
                       </p>
                       {product.status && (
                         <p

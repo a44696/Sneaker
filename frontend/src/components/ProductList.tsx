@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";  // Import useNavigate
-import { FaShoppingCart, FaHeart } from "react-icons/fa";
+import { FaShoppingCart} from "react-icons/fa";
 import LeftsideBar from "./Layout/LeftsideBar";
-
+import ProductRate from "./ProductRate";
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: string | number;  // price có thể là số hoặc chuỗi
   image: [string];
@@ -118,7 +118,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                   ? parseInt(product.price.replace(/[^0-9]/g, ""))
                   : product.price;
               const discountedPrice = product.discount > 0 ? price * (1 - product.discount / 100) : price;
-              const isLiked = likedProducts.includes(product.id); // Kiểm tra sản phẩm có được thích hay không
+              
 
               return (                
                 <div
@@ -141,7 +141,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                       }}
                       className="absolute top-2 right-2 text-red-500"
                     >
-                      <FaHeart color={isLiked ? "red" : "gray"} />
+                    
                     </button>
                   </div>
 
@@ -150,6 +150,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                   <h3 className="font-bold text-lg line-clamp-2 h-14 overflow-hidden">
                   {product.name}
                 </h3>
+                <ProductRate productId = {product.id} />
                     <p className="text-red-500 font-bold">{price.toLocaleString()} VNĐ</p>
 
                     {product.discount > 0 && (
@@ -158,7 +159,7 @@ const ProductList: React.FC<ProductListProps> = ({ search, setSearch }) => {
                         <p className="text-lg font-bold">{discountedPrice.toLocaleString()} VNĐ</p>
                       </div>
                     )}
-
+                    
                     {/* Nút mua hàng */}
                     <button className="mt-auto p-2 bg-white text-green-500 border border-green-500 rounded w-full flex items-center justify-center transition-all duration-300 hover:bg-green-500 hover:text-white">
                       <FaShoppingCart className="mr-2 w-5 h-5" />

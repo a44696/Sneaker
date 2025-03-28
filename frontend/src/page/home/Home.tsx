@@ -2,10 +2,9 @@ import React from "react";
 import {useNavigate} from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SpotlightCard from './SpotlightCard';
-import { FiHeart, FiPlus } from "react-icons/fi";
-import { FaStar } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardMedia, Typography, Button, Chip, IconButton  } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Button, Chip } from "@mui/material";
+import ProductRate from "../../components/ProductRate";
 import { useEffect, useState } from "react";
 import KobeShoe from "./assets/b.png";
 import JordanShoe from "./assets/a.png";
@@ -89,7 +88,7 @@ const banners2 = [
     }
 ];
   interface Product {
-    id: number;
+    id: string;
     name: string;
     price: string | number;  // price có thể là số hoặc chuỗi
     image: [string];
@@ -109,35 +108,35 @@ const HomePage = () => {
             navigate(`/product-details/${id}`);  // Chuyển hướng đến trang chi tiết sản phẩm
           };
         return (
-        <Card  key={product.id} className="shadow-md rounded-lg w-56">
-        <motion.div variants={fadeInVariant}  initial="hidden" whileInView="visible"  className="relative h-60 flex justify-center items-center bg-gray-100">
-        <CardMedia
-          component="img"
-          image={product.image[0]}
-          alt={product.name}
-          className="h-32 w-auto object-contain"
-        />
-        {product.discount > 0 && (
-          <Chip
-            label={`-${product.discount}%`}
-            className="absolute top-2 left-2 !bg-red-500 !text-white text-xs"
-          />
-        )}
-      </motion.div>
+            <Card  key={product.id} className="shadow-md rounded-lg w-56">
+            <motion.div variants={fadeInVariant}  initial="hidden" whileInView="visible"  className="relative h-60 flex justify-center items-center bg-gray-100">
+            <CardMedia
+              component="img"
+              image={product.image[0]}
+              alt={product.name}
+              className="h-32 w-auto object-contain"
+            />
+            {product.discount > 0 && (
+              <Chip
+                label={`-${product.discount}%`}
+                className="absolute top-2 left-2 !bg-red-500 !text-white text-xs"
+              />
+            )}
+          </motion.div>
 
-      <CardContent className="flex flex-col items-center p-4">
+            <CardContent className="flex flex-col items-start p-4">
             <Typography
                 className="text-sm font-medium h-12 overflow-hidden text-ellipsis text-start line-clamp-2"
             >
                 {product.name}
             </Typography>
-
+            <ProductRate productId = {product.id} />
             {/* Giá tiền căn trái và đậm hơn */}
             <motion.div  initial="hidden" 
-  whileInView="visible"  variants={fadeInVariant} className="w-full flex items-center gap-2 my-2">
+            whileInView="visible"  variants={fadeInVariant} className="w-full flex items-center gap-2 my-2">
             <Typography className="text-red-600 !font-semibold text-lg">
-        ${product.price.toLocaleString()}
-        </Typography>
+             {product.price.toLocaleString()}đ
+             </Typography>
             </motion.div>
 
             <Button
@@ -171,7 +170,6 @@ const HomePage = () => {
               ...product,
               id: product._id, // Chuyển _id thành id
             }));
-            console.log(productsWithId);
             setProducts(productsWithId); // Đặt state products với danh sách mới
            
           }
@@ -338,17 +336,14 @@ const HomePage = () => {
         <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-1/3 flex justify-center">
           <img src={product.image[0]} alt={product.name} className=" object-contain" />
         </motion.div>
-
+        
         {/* Nội dung sản phẩm */}
         <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-2/3 pl-4">
           {/* Icon yêu thích */}
           <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="flex justify-between">
             <Typography className="text-sm !font-semibold">{product.name}</Typography>
-            <IconButton className="text-gray-500">
-              <FiHeart />
-            </IconButton>
           </motion.div>
-
+          <ProductRate productId = {product.id} />
           {/* Giá sản phẩm */}
           <Typography className="text-red-500  !font-bold">${product.price.toLocaleString()}</Typography>
 
@@ -385,11 +380,8 @@ const HomePage = () => {
           {/* Icon yêu thích */}
           <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="flex justify-between">
             <Typography className="text-sm !font-semibold">{product.name}</Typography>
-            <IconButton className="text-gray-500">
-              <FiHeart />
-            </IconButton>
           </motion.div>
-
+          <ProductRate productId = {product.id} />
           {/* Giá sản phẩm */}
           <Typography className="text-red-500 !font-bold">${product.price.toLocaleString()}</Typography>
 
@@ -481,13 +473,13 @@ const HomePage = () => {
                      )}
                    </motion.div>
              
-                   <CardContent className="flex flex-col items-center p-4">
+                   <CardContent className="flex flex-col items-start p-4">
                          <Typography
-                             className="text-sm font-medium h-12 overflow-hidden text-ellipsis text-start line-clamp-2"
+                             className="text-sm font-medium h-6 overflow-hidden text-ellipsis text-start line-clamp-2"
                          >
                              {product.name}
                          </Typography>
-             
+                         <ProductRate productId = {product.id} />
                          {/* Giá tiền căn trái và đậm hơn */}
                          <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-full flex items-center gap-2 my-2">
                          <Typography className="text-red-600 !font-semibold text-lg">
@@ -564,13 +556,13 @@ const HomePage = () => {
                      )}
                    </motion.div>
              
-                   <CardContent className="flex flex-col items-center p-4">
+                   <CardContent className="flex flex-col items-start p-4">
                          <Typography
-                             className="text-sm font-medium h-12 overflow-hidden text-ellipsis text-start line-clamp-2"
+                             className="text-sm font-medium h-6 overflow-hidden text-ellipsis text-start line-clamp-2"
                          >
                              {product.name}
                          </Typography>
-             
+                         <ProductRate productId = {product.id} />
                          {/* Giá tiền căn trái và đậm hơn */}
                          <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-full flex items-center gap-2 my-2">
                          <Typography className="text-red-600 !font-semibold text-lg">
