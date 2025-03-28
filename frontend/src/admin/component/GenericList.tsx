@@ -49,24 +49,41 @@ const GenericList = ({ resource, title, fields }: GenericListProps) => {
                             return <NumberField key={field.source} source={field.source} label={field.label || field.source} />;
                         case 'date':
                             return <DateField key={field.source} source={field.source} label={field.label || field.source} />;
-                        case 'image':
-                            return (
-                                <FunctionField
-                                    key={field.source}
-                                    label={field.label || field.source}
-                                    render={(record) =>
-                                        record[field.source] && record[field.source].length > 0 ? (
-                                            <img
-                                                src={record[field.source][0]}
-                                                alt="Product"
-                                                style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }}
-                                            />
-                                        ) : (
-                                            <span>No Image</span>
-                                        )
-                                    }
-                                />
-                            );
+                            case 'image':
+                                return resource === "user" ? (
+                                    <FunctionField
+                                        key={field.source}
+                                        label={field.label || field.source}
+                                        render={(record) =>
+                                            record[field.source] ? (
+                                                <img
+                                                    src={record[field.source]}
+                                                    alt="User Avatar"
+                                                    style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }}
+                                                />
+                                            ) : (
+                                                <span>No Image</span>
+                                            )
+                                        }
+                                    />
+                                ) : (
+                                    <FunctionField
+                                        key={field.source}
+                                        label={field.label || field.source}
+                                        render={(record) =>
+                                            record[field.source] && record[field.source].length > 0 ? (
+                                                <img
+                                                    src={record[field.source][0]} // Lấy ảnh đầu tiên trong danh sách
+                                                    alt="Product"
+                                                    style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }}
+                                                />
+                                            ) : (
+                                                <span>No Image</span>
+                                            )
+                                        }
+                                    />
+                                );
+                            
                         default:
                             return <TextField key={field.source} source={field.source} label={field.label || field.source} />;
                     }

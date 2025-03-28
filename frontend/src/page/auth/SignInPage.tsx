@@ -1,27 +1,35 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+
 const SignInPage: React.FC = () => {
   const [isRegister, setIsRegister] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("customer");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleRegister = async () => {
-    try {
-        setError(null);
-        setMessage(null);
+  const handleRegister = async (event: React.FormEvent) => {
+    event.preventDefault(); // Ngăn trang bị reload khi submit
+    setError(null);
+    setMessage(null);
 
-        const response = await axios.post('http://localhost:8080/api/user/register', { name, email, password });
-        setMessage('Registration successful! Please check your email to verify your account.');
-    } catch (err) {
-        setError(err.response?.data?.message || 'Registration failed');
+    try {
+      const response = await axios.post('http://localhost:8080/api/user/register', {
+        name: username,
+        email,
+        password,
+      });
+
+      setMessage("Registration successful! Please check your email to verify your account.");
+      console.log("Registration successful!", response.data);
+    } catch (err: any) {
+      console.error("Registration failed", err);
+      setError(err.response?.data?.message || "Registration failed");
     }
-};
+  };
 
   return (
     <div className="flex justify-center items-center h-screen bg-white">
@@ -46,6 +54,7 @@ const SignInPage: React.FC = () => {
         </p>
 
         {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+        {message && <p className="text-green-500 text-sm text-center mb-2">{message}</p>} {/* Thêm thông báo thành công */}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
@@ -77,25 +86,6 @@ const SignInPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                checked={role === "customer"}
-                onChange={() => setRole("customer")}
-              />
-              <span>I am a customer</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                checked={role === "vendor"}
-                onChange={() => setRole("vendor")}
-              />
-              <span>I am a vendor</span>
-            </div>
           </div>
 
           <p className="text-xs text-gray-600">
