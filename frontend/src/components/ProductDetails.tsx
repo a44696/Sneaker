@@ -23,12 +23,6 @@ const ProductDetails: React.FC = () => {
   const [mainImage, setMainImage] = useState<string>(""); 
   const [selectedSize, setSelectedSize] = useState<string>("");
   const navigate = useNavigate();
-
-
-  const handleBuyNow = () => {
-    if (!product) return;
-    navigate(`/checkout?productId=${product._id}&quantity=${quantity}&size=${selectedSize}`);
-  };
   const fetchProductDetails = async (id: any) => { // ✅ Nhận id làm tham số
     setLoading(true);
     try {
@@ -69,6 +63,9 @@ const ProductDetails: React.FC = () => {
   const handleAddToCart = async () => {
     if (!product) return;
     console.log(localStorage.getItem("accessToken"))
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+    console.log(user);
+
     try {
       const response = await fetch("http://localhost:8080/api/cart/create", {
         method: "POST",
@@ -77,9 +74,11 @@ const ProductDetails: React.FC = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Nếu có đăng nhập
         },
         body: JSON.stringify({
+          // Nếu có đăng nhập
+          userId: user?._id,
           productId: product._id,
           quantity: quantity,
-          size: selectedSize,
+          size: selectedSize
         }),
       });
 
@@ -87,21 +86,6 @@ const ProductDetails: React.FC = () => {
   
       if (data.success) {
         console.log("✅ Thêm vào giỏ hàng thành công!", data.cart);
-
-         // Lấy giỏ hàng từ localStorage
-        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        const existingItem = cart.find((item: any) => item.productId === product._id);
-
-        if (!existingItem) {
-          cart.push({ productId: product._id, quantity }); // Chỉ thêm nếu chưa có
-        } else {
-          console.log("🔹 Sản phẩm đã có trong giỏ hàng, không tăng số lượng!");
-        }
-        // Lưu lại vào localStorage
-        localStorage.setItem("cart", JSON.stringify(cart));
-
         // Kích hoạt sự kiện để cập nhật Header
         window.dispatchEvent(new Event("cartUpdated"));
 
@@ -243,7 +227,7 @@ const ProductDetails: React.FC = () => {
             <button onClick={handleAddToCart} className="p-3 bg-green-500 text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />Add To Cart
             </button>
-            <button onClick={handleBuyNow} className="p-3 mx-5 bg-black text-white rounded-md flex">
+            <button onClick={handleAddToCart} className="p-3 mx-5 bg-black text-white rounded-md flex">
               <FaShoppingCart className="mr-2" />
               Buy Now
             </button>

@@ -66,12 +66,21 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
   }, [search]);
 
   useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const totalItems = Array.isArray(cart) ? cart.reduce((total, item) => total + (item.quantity || 1), 0) : 0;
-      setCartCount(totalItems);
+    const updateCartCount = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/cart/get", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        const data = await response.json();
+        setCartCount(data.data.length);
+      } catch (error) {
+        console.error("Error fetching cart count:", error);
+      }
     };
-  
     updateCartCount();
   
     const handleCartUpdate = () => {

@@ -12,6 +12,7 @@ interface CartItem {
     discount: number;
   };
   quantity: number;
+  size: number;
 }
 
 const Cart: React.FC = () => {
@@ -96,34 +97,13 @@ const Cart: React.FC = () => {
       console.error("Lỗi khi xóa sản phẩm:", error);
     }
   };
-  const clearCart = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/api/cart/clear", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error("Xóa giỏ hàng thất bại");
-      }
-  
-      setCartItems([]); // Cập nhật lại cartItems về mảng rỗng sau khi xóa
-      console.log("🛒 Giỏ hàng đã được xóa thành công.");
-    } catch (error) {
-      console.error("Lỗi khi xóa giỏ hàng:", error);
-      alert("Lỗi khi xóa giỏ hàng sau khi đặt hàng.");
-    }
-  };
+
   
   const handleOrder = async () => {
-   
-  
     const products = cartItems.map((item) => ({
       productId: item.productId._id,
       quantity: item.quantity,
+      size: item.size
     }));
     const totalAmt = cartItems.reduce((sum, item) => {
       const priceAfterDiscount =
@@ -134,9 +114,7 @@ const Cart: React.FC = () => {
       products,
       totalAmt,
     }
-    await clearCart();
     navigate("/checkout", {state: OrderData});
-    
   };
   if (loading) return <div>Đang tải giỏ hàng...</div>;
 
@@ -173,7 +151,13 @@ const Cart: React.FC = () => {
                 </span>
               )}
             </p>
-
+            <p className="text-gray-800 font-bold">
+              Size:{" "}
+              <span>
+                {item.size}
+              </span>
+              
+            </p>
             {/* Nút tăng giảm số lượng */}
             <div className="flex items-center mt-2">
               <button

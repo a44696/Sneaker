@@ -3,9 +3,11 @@ import UserModel from "../models/user.model.js";
 
 export const addToCartItemController = async(request,response)=>{
     try {
-        const  userId = request.userId
+        const  userId = request.body.userId;
         const { productId } = request.body
-        
+        const quantity = request.body.quantity;
+        const size = request.body.size;
+        console.log( request)
         if(!productId){
             return response.status(402).json({
                 message : "Provide productId",
@@ -16,7 +18,7 @@ export const addToCartItemController = async(request,response)=>{
 
         const checkItemCart = await CartProductModel.findOne({
             userId : userId,
-            productId : productId
+            productId : productId,
         })
 
         if(checkItemCart){
@@ -26,9 +28,10 @@ export const addToCartItemController = async(request,response)=>{
         }
 
         const cartItem = new CartProductModel({
-            quantity : 1,
             userId : userId,
-            productId : productId
+            productId : productId,
+            quantity : quantity,
+            size : size
         })
         const save = await cartItem.save()
 

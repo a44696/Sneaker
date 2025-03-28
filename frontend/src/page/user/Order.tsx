@@ -14,6 +14,7 @@ interface Order {
   products: {
     productId: Product;
     quantity: number;
+    size: number;
   }[];
   createdAt: string;
   totalAmt: number;
@@ -146,10 +147,12 @@ const OrderPage = () => {
                                 />
                                 <div className="ml-4">
                                     <p className="font-semibold">{item.productId?.name}</p>
+                                    <p className="text-gray-500">{`Size: ${item.size}`}</p>
                                     <p className="text-gray-500">
                                     {item.quantity} x ${item.productId?.price.toLocaleString()}
                                     </p>
                                 </div>
+                                
                                 <div className="ml-auto font-semibold">
                                     ${(item.quantity * item.productId?.price).toLocaleString()}
                                 </div>

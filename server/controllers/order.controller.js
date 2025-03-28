@@ -67,7 +67,70 @@ export async function CashOnDeliveryOrderController(request, response) {
         });
     }
 }
+export async function createNewOrderController(request, response) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+        const { userId, products, totalAmt } = request.body;
 
+        if (!userId || !products || products.length === 0) {
+            return response.status(400).json({
+                message: "Missing userId or products in the order.",
+                error: true,
+                success: false,
+            });
+        }
+
+        // Tạo payload cho order
+        const orderPayload = {
+            userId,
+            orderId: `ORD-${new Date().getTime()}`, // Tạo orderId dựa trên timestamp để đảm bảo duy nhất
+            products,
+            payment_status: "CASH ON DELIVERY",
+            delivery_address: null,
+            subTotalAmt: totalAmt,
+            totalAmt,
+        };
+
+        // Tạo đơn hàng
+        const createdOrder = await OrderModel.create([orderPayload], { session });
+
+        // Giảm stock sản phẩm trong transaction
+        for (let item of products) {
+            await ProductModel.findByIdAndUpdate(
+                item.productId,
+                { $inc: { stock: -item.quantity } },
+                { session }
+            );
+        }
+
+        // Xóa giỏ hàng của user trong transaction
+        await CartProductModel.deleteMany({ userId }, { session });
+        await UserModel.updateOne({ _id: userId }, { shopping_cart: [] }, { session });
+
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
+
+        return response.status(201).json({
+            message: "Order created successfully",
+            error: false,
+            success: true,
+            data: createdOrder,
+        });
+
+    } catch (error) {
+        // Rollback transaction nếu có lỗi
+        await session.abortTransaction();
+        session.endSession();
+        return response.status(500).json({
+            message: error.message || "Internal Server Error",
+            error: true,
+            success: false,
+        });
+    }
+}
 export async function getOrderDetailsbyUserController(request, response) {
     try {
         const userId = request.userId;
@@ -99,64 +162,7 @@ export async function getOrderDetailsbyUserController(request, response) {
         });
     }
 }
-export async function createNewOrderController(request, response) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const { userId, products, totalAmt } = request.body;
 
-        if (!userId || !products || products.length === 0) {
-            return response.status(400).json({
-                message: "Missing userId or products in the order.",
-                error: true,
-                success: false,
-            });
-        }
-
-        // Tạo payload cho order
-        const orderPayload = {
-            userId: userId,
-            orderId: `ORD-${new mongoose.Types.ObjectId()}`, // Tạo orderId duy nhất
-            products: products,
-            payment_status: "PENDING", // Trạng thái thanh toán mặc định
-            delivery_address: null, // Có thể xử lý sau nếu có thông tin
-            subTotalAmt: totalAmt,
-            totalAmt: totalAmt,
-        };
-
-        // Tạo đơn hàng trong session
-        const createdOrder = await OrderModel.create([orderPayload], { session });
-
-        // Giảm stock sản phẩm dựa trên danh sách products
-        for (const item of products) {
-            await ProductModel.findByIdAndUpdate(
-                item.productId,
-                { $inc: { stock: -item.quantity } }, // Trừ stock theo quantity của sản phẩm
-                { session }
-            );
-        }
-
-        // Commit transaction
-        await session.commitTransaction();
-        session.endSession();
-
-        return response.status(201).json({
-            message: "Order created successfully",
-            error: false,
-            success: true,
-            data: createdOrder,
-        });
-
-    } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        return response.status(500).json({
-            message: error.message || "Internal Server Error",
-            error: true,
-            success: false,
-        });
-    }
-}
 export const getOrderController = async(request,response)=>{
     try {
         

@@ -6,6 +6,7 @@ interface OrderData{
   products: {
     productId: string;
     quantity: number;
+    size: number;
   }[]; // Mảng có nhiều phần tử
   totalAmt: string;
 }
@@ -180,6 +181,7 @@ const CheckOutList: React.FC = () => {
       console.error("Lỗi khi tạo order:", error);
       alert("Đã xảy ra lỗi khi đặt hàng.");
     }
+    window.location.reload();
   };
 
   // Handle form input change
@@ -267,14 +269,14 @@ const CheckOutList: React.FC = () => {
         <div key={data._id}>
           <div className="flex justify-between">
             <span className="font-bold">
-              {data.name} x {quantity}
+              {data.name} x {quantity}  
             </span>
             <span className="font-bold">{subtotal.toLocaleString()} VNĐ</span>
           </div>
         </div>
       );
     })}
-
+    
     <div className="flex justify-between text-sm text-gray-600 mt-2">
       <span>Shipping:</span>
       {/* {shippingCost === 0 ? ( */}
