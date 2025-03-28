@@ -1,6 +1,6 @@
 import ReviewModel from "../models/review.model.js";
 import ProductModel from "../models/product.model.js";
-
+import UserModel from "../models/user.model.js";
 export async function createReviewController(request, response) {
     try {
         const { user, product, rating, comment } = request.body;
@@ -63,9 +63,20 @@ export async function getReviewsByProductController(request, response) {
 
 export async function deleteReviewController(request, response) {
     try {
-        const { reviewId } = request.body;
+        const { reviewId, userId } = request.body; // Lấy reviewId và userId từ request
 
-        const review = await ReviewModel.findByIdAndDelete(reviewId);
+        // Lấy thông tin user từ database (hoặc từ JWT nếu bạn dùng authentication)
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return response.status(404).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        // Kiểm tra xem review có tồn tại không
+        const review = await ReviewModel.findById(reviewId);
         if (!review) {
             return response.status(404).json({
                 message: "Review not found",
@@ -73,6 +84,18 @@ export async function deleteReviewController(request, response) {
                 success: false
             });
         }
+
+        // Nếu user có role "ADMIN", cho phép xóa mà không cần kiểm tra userId
+        if (user.role !== "ADMIN" && review.user.toString() !== userId) {
+            return response.status(403).json({
+                message: "You are not authorized to delete this review",
+                error: true,
+                success: false
+            });
+        }
+
+        // Nếu hợp lệ thì xóa review
+        await ReviewModel.findByIdAndDelete(reviewId);
 
         return response.json({
             message: "Review deleted successfully",
@@ -87,3 +110,4 @@ export async function deleteReviewController(request, response) {
         });
     }
 }
+

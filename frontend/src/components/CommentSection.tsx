@@ -1,5 +1,6 @@
 import  { useState, useEffect } from "react";
-import { Avatar, Pagination ,Button, TextField, IconButton } from "@mui/material";
+import { Avatar, Pagination ,Button, TextField, IconButton, Menu, MenuItem} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { BiBold, BiItalic, BiUnderline, BiImage, BiSmile, BiLink, BiAt } from "react-icons/bi";
 import axios from "axios";
 import Box from '@mui/material/Box';
@@ -29,6 +30,8 @@ const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
     const commentsPerPage = 5;
     const [comment, setComment] = useState("");
     const [rating, setRating] = useState(5);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedReview, setSelectedReview] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [productReview, setProductReview] = useState<ProductReview[] | null>([]);
     
@@ -51,7 +54,30 @@ const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
         }
         
     }
-    
+    const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, reviewId: string) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedReview(reviewId);
+    };
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedReview(null);
+    };
+    const handleDelete = async (reviewId: string) => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            const response = await axios.delete(`http://localhost:8080/api/review/delete`,
+                { 
+                headers: { Authorization: `Bearer ${token}` },
+                data: { reviewId, userId: user?._id }
+            });
+            alert("Comment deleted successfully!");
+            handleMenuClose();
+            window.location.reload();
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+            alert(error?.response.data.message)
+        }
+    };
     const handleSubmit = async () => {
         const review = {
             product: productId,
@@ -122,16 +148,29 @@ const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
                 <div key={review._id} className="mt-6">
                     <div className="flex items-start space-x-3 border-b pb-4">
                         <Avatar src={review?.user?.avatar} />
-                        <div>
-                            <div className="flex items-center space-x-2">
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between">
                                 <p className="font-semibold">
                                     {review?.user?.name}{" "}
                                     <span className="text-gray-400 text-sm">
                                         {new Date(review.createdAt).toLocaleDateString()}
                                     </span>
                                 </p>
-                                <Rating name="read-only" value={review.rating} readOnly />
+                                <div>
+                                    <IconButton onClick={(e) => handleMenuOpen(e, review._id)}>
+                                        <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        open={Boolean(anchorEl) && selectedReview === review._id}
+                                        onClose={handleMenuClose}
+                                    >
+                                        {/* <MenuItem onClick={handleEdit}>Edit</MenuItem> */}
+                                        <MenuItem onClick={() => {handleDelete(review._id)}}>Thu Hồi</MenuItem>
+                                    </Menu>
+                                </div>
                             </div>
+                            <Rating name="read-only" value={review.rating} readOnly />
                             <p className="text-gray-600 mt-1">{review.comment}</p>
                         </div>
                     </div>
