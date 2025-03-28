@@ -9,6 +9,7 @@ interface Product {
   price: string;
   image: string[];
   description: string;
+  more_details: string;
   stock: number;
   sizes: string[]; 
   discount: number;  // Thêm thuộc tính discount
@@ -258,7 +259,7 @@ const ProductDetails: React.FC = () => {
         <button className="pb-2 border-b-2 border-black font-semibold text-black">Description</button>
       </div>
       <div className="mt-4 mb-12 text-gray-700 leading-relaxed">
-        <p>{product.description}</p>
+        <p>{product.more_details}</p>
       </div>
     </div>
       <CommentSection productId={id} />
