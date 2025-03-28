@@ -64,7 +64,10 @@ const ProductDetails: React.FC = () => {
     if (!product) return;
     console.log(localStorage.getItem("accessToken"))
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
-    console.log(user);
+   if(!user) {
+    alert("Please login");
+    return;  // Nếu chưa đăng nhập thì báo và thoát hàm
+   } 
 
     try {
       const response = await fetch("http://localhost:8080/api/cart/create", {
