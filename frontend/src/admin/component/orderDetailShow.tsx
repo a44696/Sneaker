@@ -1,4 +1,4 @@
-import { useRecordContext, SimpleForm, TextInput, Show } from 'react-admin';
+import { useRecordContext, SimpleForm, TextInput, Edit } from 'react-admin';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
@@ -82,9 +82,9 @@ console.log(record);
 
 const OrderShow = ({ resource, fields }: { resource: string; fields: any[] }) => {
   return (
-    <Show resource={resource} actions={false}>
+    <Edit resource={resource} actions={false}>
       <GenericFormShow fields={fields} />
-    </Show>
+    </Edit>
   );
 };
 

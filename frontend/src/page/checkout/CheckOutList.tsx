@@ -51,7 +51,7 @@ const CheckOutList: React.FC = () => {
     phone: "",
     email: "",
     agree: false,
-    paymentMethod: "bank",
+    paymentMethod: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -132,6 +132,7 @@ const CheckOutList: React.FC = () => {
       address: userData.address,
       phone: userData.phoneNumber,
       email: userData.email,
+
     }));
     
     setUser(userData)// Lấy userId từ localStorage
@@ -156,9 +157,16 @@ const CheckOutList: React.FC = () => {
   
 
   const createOrder = async () => {
+  console.log (validateForm())
+  if (!validateForm()) {
+    alert("Vui lòng tích phương thức thanh toán");
+    return;
+  };
   const userId = user?.id;
   const products = orderData.products;
   const totalAmt = orderData.totalAmt;
+  const payment = form.paymentMethod;
+  console.log(payment);
     try {
       const response = await fetch("http://localhost:8080/api/order/create", {
         method: "POST",
@@ -166,7 +174,7 @@ const CheckOutList: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-        body: JSON.stringify({ userId, products, totalAmt }), // Truyền userId từ localStorage
+        body: JSON.stringify({ userId, products, totalAmt, payment }), // Truyền userId từ localStorage
       });
   
       const data = await response.json();
@@ -188,17 +196,27 @@ const CheckOutList: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    
   };
 
   // Validate form
   const validateForm = () => {
+    let status = true;
     const newErrors: { [key: string]: string } = {};
-    if (!form.Name) newErrors.firstName = "First name is required";
-    if (!form.address) newErrors.address = "Address is required";
-    if (!form.phone) newErrors.phone = "Phone is required";
-    if (!form.email) newErrors.email = "Email is required";
+    if (!form.Name) {
+      status = false;
+      newErrors.Name = "Name is required";
+    }
+    if (!form.email) {
+      status = false;
+      newErrors.email = "Email is required";
+    }
+    if(!form.paymentMethod) {
+      status = false;
+      newErrors.paymentMethod = "PaymentMethod is required";
+    }
     // if (!form.agree) newErrors.agree = "You must agree to terms";
-    return newErrors;
+    return status;
   };
 
   return (
@@ -302,8 +320,8 @@ const CheckOutList: React.FC = () => {
             <input
               type="radio"
               name="paymentMethod"
-              value="bank"
-              checked={form.paymentMethod === "bank"}
+              value="DIRECT BANK TRANSFER"
+              checked={form.paymentMethod === "DIRECT BANK TRANSFER"}
               onChange={handleChange}
               className="mr-2"
             /> Direct Bank Transfer
@@ -312,8 +330,8 @@ const CheckOutList: React.FC = () => {
             <input
               type="radio"
               name="paymentMethod"
-              value="cod"
-              checked={form.paymentMethod === "cod"}
+              value="CASH ON DELIVERY"
+              checked={form.paymentMethod === "CASH ON DELIVERY"}
               onChange={handleChange}
               className="mr-2"
             /> Cash On Delivery

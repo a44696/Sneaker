@@ -72,7 +72,7 @@ export async function createNewOrderController(request, response) {
     session.startTransaction();
     
     try {
-        const { userId, products, totalAmt } = request.body;
+        const { userId, products, totalAmt, payment } = request.body;
 
         if (!userId || !products || products.length === 0) {
             return response.status(400).json({
@@ -87,7 +87,7 @@ export async function createNewOrderController(request, response) {
             userId,
             orderId: `ORD-${new Date().getTime()}`, // Tạo orderId dựa trên timestamp để đảm bảo duy nhất
             products,
-            payment_status: "CASH ON DELIVERY",
+            payment_status: payment,
             delivery_address: null,
             subTotalAmt: totalAmt,
             totalAmt,
@@ -269,6 +269,37 @@ export const deleteOrderDetails = async(request,response)=>{
             success : true,
             data : deleteOrder
         })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+export const updateOrderDetails = async(request,response)=>{
+    try {
+        const { id } = request.body 
+
+        if(!id){
+            return response.status(400).json({
+                message : "provide Order id",
+                error : true,
+                success : false
+            })
+        }
+
+        const updateOrder = await OrderModel.updateOne({ _id : id },{
+            ...request.body
+        })
+
+        return response.json({
+            message : "updated successfully",
+            data : updateOrder,
+            error : false,
+            success : true
+        })
+
     } catch (error) {
         return response.status(500).json({
             message : error.message || error,

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import auth from '../middleware/auth.js'
-import { createNewOrderController, deleteOrderDetails, getOrderListController, CashOnDeliveryOrderController, getOrderDetails, getOrderDetailsbyUserController, getOrderController} from '../controllers/order.controller.js'
+import { createNewOrderController, updateOrderDetails, deleteOrderDetails, getOrderListController, CashOnDeliveryOrderController, getOrderDetails, getOrderDetailsbyUserController, getOrderController} from '../controllers/order.controller.js'
 
 const orderRouter = Router()
 
@@ -11,4 +11,5 @@ orderRouter.post("/order-list",auth,getOrderDetailsbyUserController)
 orderRouter.post("/get",getOrderController)
 orderRouter.get("/get-order-list",getOrderListController)
 orderRouter.delete("/delete",auth,deleteOrderDetails)
+orderRouter.put('/update-order-details',auth,updateOrderDetails)
 export default orderRouter
