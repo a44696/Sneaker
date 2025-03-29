@@ -107,7 +107,9 @@ const OrderList = () => (
             { source: "userName", label: "Name"},
             { source: "orderId", label: "OrderId" },
             { source: "createdAt", label: "Ngày Đặt", type: "date" },
-            { source: "payment_status", label: "Phương thức thanh toán" },
+            { source: "delivery_address", label: "Địa chỉ giao hàng" },
+            { source: "payment_status", label: "Trạng thái thanh toán" },
+            { source: "delivery_status", label: "Trạng thái giao hàng" },
         ]}
     />
 );
@@ -118,7 +120,9 @@ const OrderShow = () => (
             { source: "userName", label: "Name"},
             { source: "orderId", label: "OrderId" },
             { source: "createdAt", label: "Ngày Đặt", type: "date" },
-            { source: "payment_status", label: "Phương thức thanh toán" },
+            { source: "delivery_address", label: "Địa chỉ giao hàng" },
+            { source: "payment_status", label: "Trạng thái thanh toán" },
+            { source: "delivery_status", label: "Trạng thái giao hàng" },
             { source: "products", label: "Sản Phẩm", type: "array" },
         ]}
     />

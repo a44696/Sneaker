@@ -1,4 +1,4 @@
-import { useRecordContext, SimpleForm, TextInput, Edit } from 'react-admin';
+import { useRecordContext, SimpleForm, TextInput, Edit, SelectInput } from 'react-admin';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
@@ -73,7 +73,36 @@ console.log(record);
             </div>
           );
         }
-
+        if ( field.source === "payment_status") {
+          return (
+              <SelectInput
+                  key={field.source}
+                  source={field.source}
+                  label={field.label}
+                  choices={[
+                      { id: "Pending", name: "Pending" },
+                      { id: "Success", name: "Success" },
+                  ]}
+                  optionText="name"
+                  optionValue="id"
+              />
+          );
+        }
+          if ( field.source === "delivery_status") {
+            return (
+                <SelectInput
+                      key={field.source}
+                      source={field.source}
+                      label={field.label}
+                      choices={[
+                          { id: "Pending", name: "Pending" },
+                          { id: "Delivered", name: "Delivered" },
+                    ]}
+                    optionText="name"
+                    optionValue="id"
+                />
+            );
+          }
         return <TextInput key={field.source} source={field.source} label={field.label}  />;
       })}
     </SimpleForm>

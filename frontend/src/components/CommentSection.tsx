@@ -1,9 +1,8 @@
 import  { useState, useEffect } from "react";
-import { Avatar, Pagination ,Button, TextField, IconButton, Menu, MenuItem} from "@mui/material";
+import { Avatar, Pagination , IconButton, Menu, MenuItem} from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { BiBold, BiItalic, BiUnderline, BiImage, BiSmile, BiLink, BiAt } from "react-icons/bi";
 import axios from "axios";
-import Box from '@mui/material/Box';
+
 
 import Rating from '@mui/material/Rating';
 interface User {
@@ -28,8 +27,6 @@ interface User {
 const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
     const [page, setPage] = useState(1);
     const commentsPerPage = 5;
-    const [comment, setComment] = useState("");
-    const [rating, setRating] = useState(5);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [selectedReview, setSelectedReview] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
@@ -78,69 +75,17 @@ const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
             alert(error?.response.data.message)
         }
     };
-    const handleSubmit = async () => {
-        const review = {
-            product: productId,
-            user: user?._id,
-            comment,
-            rating,
-        }
-        try {
-            console.log(review);
-            await axios.post("http://localhost:8080/api/review/create", review);
-            
-            window.location.reload();
-        } catch (error) {
-            console.error("Failed to add review:", error);
-        }
-        setComment("");
-    };
     const totalPages = Math.ceil((productReview?.length || 0) / commentsPerPage);
     const displayedReviews = productReview?.slice((page - 1) * commentsPerPage, page * commentsPerPage);
     return (
+        <>
+        <div className=" my-8">
+        <label className="pb-2 border-b-2 border-black font-semibold text-black">User Review</label>
+      </div>
         <div className="max-w-full mx-auto bg-white p-4 shadow-md rounded-md">
        
         {/* Input comment */}
-        <div className="border p-3 rounded-md">
-         {/*rating */}
-            <Box sx={{ '& > legend': { mt: 2 } }}>
-            <Rating
-            name="simple-controlled"
-            value={rating}
-            onChange={(event, newValue: number | null) => {
-                if (newValue !== null) {
-                    setRating(newValue);
-                }
-            }}
-            />
-            </Box> 
-            <TextField
-            fullWidth
-            variant="standard"
-            placeholder="Add comment..."
-            multiline
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            InputProps={{ disableUnderline: true }}
-            />
-
-            {/* Toolbar */}
-            <div className="flex justify-between items-center mt-2">
-            <div className="flex space-x-2">
-                <IconButton size="small"><BiBold /></IconButton>
-                <IconButton size="small"><BiItalic /></IconButton>
-                <IconButton size="small"><BiUnderline /></IconButton>
-                <IconButton size="small"><BiLink /></IconButton>
-                <IconButton size="small"><BiImage /></IconButton>
-                <IconButton size="small"><BiSmile /></IconButton>
-                <IconButton size="small"><BiAt /></IconButton>
-            </div>
-
-            <Button variant="contained" color="warning" onClick={handleSubmit}>
-                Submit
-            </Button>
-            </div>
-        </div>
+        
 
         <div className="mt-6">
             {/* List comments */}
@@ -191,6 +136,7 @@ const CommentSection: React.FC<{ productId: any }> = ({ productId }) => {
         </div>
         
         </div>
+        </>
   );
 };
 

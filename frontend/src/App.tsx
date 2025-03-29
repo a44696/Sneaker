@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
-
+import CreatePayment from './page/checkout/CreatePayment.tsx';
+import VnpayReturn from './page/checkout/PaymentReturn.tsx';
 import { Admin, Resource, CustomRoutes } from 'react-admin';
 import authProvider from './admin/component/authProvider.tsx'; 
 import CustomLayout from './admin/layouts/default';
@@ -50,8 +51,8 @@ import Order from './page/user/Order.tsx';
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
-
-        
+          <Route path="/payment-qr" element={<CreatePayment />} />
+          <Route path="/payment-return" element={<VnpayReturn />} />
         </Routes>
       </Router>
       <Router basename="/admin">

@@ -3,76 +3,12 @@ import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
-
-export async function CashOnDeliveryOrderController(request, response) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const userId = request.userId;
-        const { list_items, totalAmt, addressId, subTotalAmt } = request.body;
-
-        if (!list_items || list_items.length === 0) {
-            return response.status(400).json({
-                message: "No items in the order.",
-                error: true,
-                success: false
-            });
-        }
-
-        const products = list_items.map(el => ({
-            productId: el.productId._id,
-            quantity: el.quantity
-        }));
-
-        const orderPayload = {
-            userId: userId,
-            orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-            products: products,
-            payment_status: "CASH ON DELIVERY",
-            delivery_address: addressId,
-            subTotalAmt: subTotalAmt,
-            totalAmt: totalAmt,
-        };
-
-        const generatedOrder = await OrderModel.create([orderPayload], { session });
-
-        for (let item of list_items) {
-            await ProductModel.findByIdAndUpdate(
-                item.productId._id,
-                { $inc: { stock: -item.quantity } },
-                { session }
-            );
-        }
-        await CartProductModel.deleteMany({ userId: userId }, { session });
-        await UserModel.updateOne({ _id: userId }, { shopping_cart: [] }, { session });
-
-        // Commit transaction
-        await session.commitTransaction();
-        session.endSession();
-
-        return response.json({
-            message: "Order successfully",
-            error: false,
-            success: true,
-            data: generatedOrder
-        });
-
-    } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        return response.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
-    }
-}
 export async function createNewOrderController(request, response) {
     const session = await mongoose.startSession();
     session.startTransaction();
     
     try {
-        const { userId, products, totalAmt, payment } = request.body;
+        const { userId, products, totalAmt, payment_method, address } = request.body;
 
         if (!userId || !products || products.length === 0) {
             return response.status(400).json({
@@ -87,8 +23,10 @@ export async function createNewOrderController(request, response) {
             userId,
             orderId: `ORD-${new Date().getTime()}`, // Tạo orderId dựa trên timestamp để đảm bảo duy nhất
             products,
-            payment_status: payment,
-            delivery_address: null,
+            payment_method: payment_method,
+            payment_status: "Pending",
+            delivery_status: "Pending",
+            delivery_address: address || "",
             subTotalAmt: totalAmt,
             totalAmt,
         };
@@ -308,3 +246,46 @@ export const updateOrderDetails = async(request,response)=>{
         })
     }
 }
+export const updateOrderStatus = async (request, response) => {
+    try {
+        const { id, delivery_status, payment_status } = request.body;
+
+        if (!id) {
+            return response.status(400).json({
+                message: "Provide Order ID",
+                error: true,
+                success: false
+            });
+        }
+
+        if (delivery_status && !["Pending", "Delivered"].includes(delivery_status)) {
+            return response.status(400).json({
+                message: "Invalid delivery status",
+                error: true,
+                success: false,
+            });
+        }
+        if (payment_status && !["Pending", "Success"].includes(payment_status)) {
+            return response.status(400).json({
+                message: "Invalid delivery status",
+                error: true,
+                success: false,
+            });
+        }
+        const updateOrder = await OrderModel.updateOne({ _id: id }, { ...request.body });
+
+        return response.json({
+            message: "Order updated successfully",
+            data: updateOrder,
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+};

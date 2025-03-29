@@ -28,9 +28,24 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    payment_status: {
+    delivery_address: {
       type: String,
       default: "",
+    },
+    payment_status: {
+      type: String,
+      enum: ["Pending", "Success"],
+      default: "Pending",
+    },
+    payment_method: {
+      type: String,
+      enum: ["CASH ON DELIVERY", "USING DEBIT CARD"], // Only allows these values
+      required: true,
+    },
+    delivery_status: {
+      type: String,
+      enum: ["Pending", "Delivered"], // Only allows these values
+      default: "Pending",
     },
     subTotalAmt: {
       type: Number,

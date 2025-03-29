@@ -120,7 +120,7 @@ const CheckOutList: React.FC = () => {
           address: parsedUser.address || "",
           name: parsedUser.name || "",
           email: parsedUser.email || "",
-          phoneNumber: parsedUser.phoneNumber || "",
+          phoneNumber: parsedUser.mobile || "",
         };
       } catch (error) {
         console.error("Failed to parse user data from localStorage:", error);
@@ -165,8 +165,8 @@ const CheckOutList: React.FC = () => {
   const userId = user?.id;
   const products = orderData.products;
   const totalAmt = orderData.totalAmt;
-  const payment = form.paymentMethod;
-  console.log(payment);
+  const payment_method = form.paymentMethod;
+  const delivery_address = form.address;
     try {
       const response = await fetch("http://localhost:8080/api/order/create", {
         method: "POST",
@@ -174,7 +174,7 @@ const CheckOutList: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-        body: JSON.stringify({ userId, products, totalAmt, payment }), // Truyền userId từ localStorage
+        body: JSON.stringify({ userId, products, totalAmt, payment_method, delivery_address }), // Truyền userId từ localStorage
       });
   
       const data = await response.json();
@@ -320,11 +320,11 @@ const CheckOutList: React.FC = () => {
             <input
               type="radio"
               name="paymentMethod"
-              value="DIRECT BANK TRANSFER"
-              checked={form.paymentMethod === "DIRECT BANK TRANSFER"}
+              value="USING DEBIT CARD"
+              checked={form.paymentMethod === "USING DEBIT CARD"}
               onChange={handleChange}
               className="mr-2"
-            /> Direct Bank Transfer
+            /> Debit Card
           </label>
           <label className="flex items-center mt-2">
             <input

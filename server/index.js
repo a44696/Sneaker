@@ -13,7 +13,7 @@ import productRouter from './route/product.route.js'
 import cartRouter from './route/cart.route.js'
 import orderRouter from './route/order.route.js'
 import reviewRouter from './route/review.route.js'
-
+import paymentRoute from './route/payment.route.js'
 
 const app = express()
 app.use(cors({
@@ -44,7 +44,7 @@ app.use("/api/product",productRouter)
 app.use("/api/cart",cartRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/review',reviewRouter)
-
+app.use('/api/payment',paymentRoute)
 
 connectDB().then(()=>{
     app.listen(PORT,()=>{
