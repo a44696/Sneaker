@@ -6,7 +6,7 @@ export const admin = async(request,response,next)=>{
 
        const user = await UserModel.findById(userId)
 
-       if(user.role !== 'ADMIN'){
+       if(user.role !== 'ADMIN' && user.role !== 'STAFF'){
             return response.status(400).json({
                 message : "Permission denial",
                 error : true,

@@ -186,6 +186,17 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
                         Admin Dashboard
                       </button>
                     )}
+                     {user?.role === "STAFF" && (
+                      <button 
+                      onClick={() => {
+                        navigate("/staff");
+                        window.location.reload(); // Reload lại trang sau khi chuyển hướng
+                      }}
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        Admin Dashboard
+                      </button>
+                    )}
                   <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
                 </div>
               </div>

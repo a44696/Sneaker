@@ -187,34 +187,66 @@ export const getOrderListController = async (request, response) => {
         });
     }
 };
-export const deleteOrderDetails = async(request,response)=>{
-    try {
-        const { _id } = request.body 
+export const deleteOrderDetails = async (request, response) => {
+    const session = await OrderModel.startSession(); // Khởi tạo session
+    session.startTransaction(); // Bắt đầu transaction
 
-        if(!_id){
+    try {
+        const { _id } = request.body;
+
+        if (!_id) {
             return response.status(400).json({
-                message : "provide _id ",
-                error : true,
-                success : false
-            })
+                message: "Provide _id",
+                error: true,
+                success: false
+            });
         }
 
-        const deleteOrder = await OrderModel.deleteOne({_id : _id })
+        const order = await OrderModel.findOne({ _id }).session(session);
+
+        if (!order) {
+            await session.abortTransaction(); // Hủy transaction nếu không tìm thấy đơn hàng
+            session.endSession();
+            return response.status(404).json({
+                message: "Order not found",
+                error: true,
+                success: false
+            });
+        }
+
+        // Cập nhật lại stock cho từng sản phẩm trong đơn hàng
+        for (let item of order.products) {
+            await ProductModel.findByIdAndUpdate(
+                item.productId,
+                { $inc: { stock: +item.quantity } },
+                { session }
+            );
+        }
+
+        // Xóa đơn hàng
+        const deleteOrder = await OrderModel.deleteOne({ _id }).session(session);
+
+        // Commit transaction
+        await session.commitTransaction();
+        session.endSession();
 
         return response.json({
-            message : "Delete successfully",
-            error : false,
-            success : true,
-            data : deleteOrder
-        })
+            message: "Delete successfully",
+            error: false,
+            success: true,
+            data: deleteOrder
+        });
     } catch (error) {
+        await session.abortTransaction(); // Hủy transaction nếu có lỗi
+        session.endSession();
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
-}
+};
+
 export const updateOrderDetails = async(request,response)=>{
     try {
         const { id } = request.body 
