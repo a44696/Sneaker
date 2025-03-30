@@ -11,7 +11,7 @@ import myDataProvider from './admin/component/customDataProvider';
 import Login from './admin/component/login';
 import Dashboard from './admin/pages/Dashboard';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ProductListPage from "./components/ProductList";  // Frontend page
+import ProductListPage from "./components/ProductList";  
 import ProductDetails from "./components/ProductDetails";
 import Layout from "./components/Layout/Layout";
 import Cart from "./page/cart/Cart";
@@ -24,11 +24,15 @@ import { useState, useEffect } from "react";
 import HomePage from './page/home/Home.tsx';
 import VerifyOtp from './page/auth/VerifyOtpPage';
 import Order from './page/user/Order.tsx';
+import ForgotPasswordPage from './page/auth/ForgotPasswordPage.tsx';
+import ResetPasswordPage from './page/auth/ResetPasswordPage.tsx';
+import VerifyOtpLossPW from './page/auth/VerifyOtpLossPW.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
-  useEffect (() => {
+  useEffect(() => {
     localStorage.clear();
-  }, [])
+
+  }, []);
   return (
     <StrictMode>
       <Router>
@@ -51,6 +55,9 @@ import Order from './page/user/Order.tsx';
           <Route path="/verify-otp/:userId" element={<VerifyOtp />} />
           <Route path="/payment-qr" element={<CreatePayment />} />
           <Route path="/payment-return" element={<VnpayReturn />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-otppw" element={<VerifyOtpLossPW />} />
         </Routes>
       </Router>
       <Router basename="/admin">

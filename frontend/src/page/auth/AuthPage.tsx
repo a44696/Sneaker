@@ -73,7 +73,10 @@ const handleLogin = async (event: React.FormEvent) => {
             </label>
             <button
               type="button"
-              onClick={() => navigate("/forgot-password")}
+              onClick={() => {
+                
+                navigate("/forgot-password")
+              }}
               className="text-xs text-blue-600 hover:underline"
             >
               Lost your password?

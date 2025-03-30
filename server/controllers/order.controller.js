@@ -249,7 +249,7 @@ export const deleteOrderDetails = async (request, response) => {
 
 export const updateOrderDetails = async(request,response)=>{
     try {
-        const { id } = request.body 
+    
 
         if(!id){
             return response.status(400).json({
@@ -321,3 +321,43 @@ export const updateOrderStatus = async (request, response) => {
         });
     }
 };
+export const exportExcelOrder = async (request, response) => {
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Orders");
+        const [data, totalCount] = await Promise.all([
+            OrderModel.find().sort({ createdAt: -1 }), // Lấy danh sách order, sắp xếp giảm dần theo ngày tạo
+            OrderModel.countDocuments()          // Đếm tổng số đơn hàng (Nhưng `query` chưa định nghĩa!)
+        ]);
+        // Định nghĩa tiêu đề cột
+        worksheet.columns = [
+          { header: "ID", key: "_id", width: 20 },
+          { header: "Tên", key: "name", width: 25 },
+          { header: "Email", key: "email", width: 30 },
+          { header: "Số điện thoại", key: "mobile", width: 15 },
+          { header: "Địa chỉ", key: "address", width: 40 },
+        ];
+    
+      
+        // Thêm dữ liệu vào file Excel
+        users.forEach((user) => {
+          worksheet.addRow(user);
+        });
+    
+        // Ghi file Excel ra bộ nhớ
+        const filePath = path.join(__dirname, "users.xlsx");
+        await workbook.xlsx.writeFile(filePath);
+    
+        // Gửi file về client
+        res.download(filePath, "users.xlsx", (err) => {
+          if (err) {
+            console.error("Lỗi tải file:", err);
+            res.status(500).send("Lỗi tải file");
+          }
+          fs.unlinkSync(filePath); // Xóa file sau khi gửi
+        });
+      } catch (err) {
+        console.error("Lỗi xuất Excel:", err);
+        res.status(500).send("Lỗi hệ thống");
+      }
+}

@@ -58,7 +58,7 @@ const Profile = () => {
     event.preventDefault();
     setError(null);
     try {
-       await axios.put("http://localhost:8080/api/user/verify-forgot-password-otp", { userId: user?._id, otp });
+       await axios.put("http://localhost:8080/api/user/verify-forgot-password-otp", { email: user?.email, otp });
       setOpenVerifyOtp(false);
       setOtp("");
       setOpenChangePassword(true);
@@ -71,7 +71,7 @@ const Profile = () => {
     event.preventDefault();
     setError(null);
     try {
-      const response = await axios.put("http://localhost:8080/api/user/reset-password", { userId: user?._id, newPassword });
+      const response = await axios.put("http://localhost:8080/api/user/reset-password", { email: user?.email, newPassword });
       if (response.data.success) {
         alert("Đổi mật khẩu thành công!");
         setOpenChangePassword(false);

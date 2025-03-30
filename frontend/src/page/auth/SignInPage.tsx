@@ -28,8 +28,8 @@ const SignInPage: React.FC = () => {
 
       console.log("🟢 Registration successful!", response.data);
 
-      const userId = response.data.userId;
-      navigate(`/verify-otp/${userId}`);
+    const userId = response.data.userId
+      navigate(`/verify-otp/${userId}`, {state: email});
     } catch (err: any) {
       console.error("❌ Registration failed", err);
       setError(err.response?.data?.message || "Registration failed");

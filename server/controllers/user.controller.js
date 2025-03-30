@@ -398,9 +398,9 @@ export async function forgotPasswordController(request,response) {
 //verify forgot password otp
 export async function verifyForgotPasswordOtp(request,response){
     try {
-        const { userId , otp }  = request.body
+        const { email , otp }  = request.body
 
-        if(!userId || !otp){
+        if(!email || !otp){
             return response.status(400).json({
                 message : "Provide required field email, otp.",
                 error : true,
@@ -408,7 +408,7 @@ export async function verifyForgotPasswordOtp(request,response){
             })
         }
 
-        const user = await UserModel.findOne({ _id: userId })
+        const user = await UserModel.findOne({ email: email })
 
         if(!user){
             return response.status(400).json({
@@ -462,15 +462,15 @@ export async function verifyForgotPasswordOtp(request,response){
 //reset the password
 export async function resetpassword(request,response){
     try {
-        const { userId , newPassword} = request.body 
+        const { email , newPassword} = request.body 
 
-        if(!userId || !newPassword ){
+        if(!email || !newPassword ){
             return response.status(400).json({
                 message : "provide required fields email, newPassword"
             })
         }
 
-        const user = await UserModel.findOne({_id: userId })
+        const user = await UserModel.findOne({email: email })
 
         if(!user){
             return response.status(400).json({

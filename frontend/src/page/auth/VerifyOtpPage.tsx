@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams  } from "react-router-dom";
 import axios from "axios";
 
 const VerifyOtp: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const userId = useParams().userId; 
+  const location = useLocation();
+  const email = location.state;
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ const VerifyOtp: React.FC = () => {
     }, 60000); // 60 giây = 1 phút
 
     return () => clearTimeout(timer); // Hủy timer nếu người dùng nhập OTP kịp
-  }, [userId, navigate]);
+  }, [email, navigate]);
 
   const handleVerifyOtp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -31,7 +33,7 @@ const VerifyOtp: React.FC = () => {
 
     try {
       const response = await axios.post("http://localhost:8080/api/user/verify-email", {
-        userId,
+        email,
         otp,
       });
 
