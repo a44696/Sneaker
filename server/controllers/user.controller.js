@@ -8,6 +8,7 @@ import uploadImageClodinary from '../utils/uploadImageClodinary.js'
 import generatedOtp from '../utils/generatedOtp.js'
 import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
+import otpGenerator from "otp-generator";
 export const getUserController = async(request,response)=>{
     try {
         
@@ -50,98 +51,124 @@ export const getUserController = async(request,response)=>{
         })
     }
 }
-export async function registerUserController(request,response){
+
+export async function registerUserController(request, response) {
     try {
-        const { name, email , password } = request.body
+        const { name, email, password } = request.body;
 
-        if(!name || !email || !password){
+        if (!name || !email || !password) {
             return response.status(400).json({
-                message : "provide email, name, password",
-                error : true,
-                success : false
-            })
+                message: "Provide email, name, and password",
+                error: true,
+                success: false
+            });
         }
 
-        const user = await UserModel.findOne({ email })
+        const existingUser = await UserModel.findOne({ email });
 
-        if(user){
+        if (existingUser) {
             return response.json({
-                message : "Already register email",
-                error : true,
-                success : false
-            })
+                message: "Email already registered",
+                error: true,
+                success: false
+            });
         }
 
-        const salt = await bcryptjs.genSalt(10)
-        const hashPassword = await bcryptjs.hash(password,salt)
+        const salt = await bcryptjs.genSalt(10);
+        const hashPassword = await bcryptjs.hash(password, salt);
 
-        const payload = {
+        // 🔹 **Tạo mã OTP ngẫu nhiên (6 số)**
+        const otpCode = otpGenerator.generate(6, { digits: true, upperCase: false, specialChars: false });
+        const otpExpiry = new Date(Date.now() + 1 * 60 * 1000); // OTP có hiệu lực trong 1 phút
+
+        // 🔹 **Lưu user với OTP vào database**
+        const newUser = new UserModel({
             name,
             email,
-            password : hashPassword
-        }
+            password: hashPassword,
+            otp: otpCode,
+            otpExpiry
+        });
 
-        const newUser = new UserModel(payload)
-        const save = await newUser.save()
+        await newUser.save();
 
-        const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${save?._id}`
+        // 🔹 **Tạo nội dung email**
+        const emailContent = `
+            <h2>Hello ${name},</h2>
+            <p>Your OTP for email verification is: <strong>${otpCode}</strong></p>
+            <p>This OTP will expire in 10 minutes.</p>
+            <p>If you did not request this, please ignore this email.</p>
+        `;
 
-        const verifyEmail = await sendEmail({
-            sendTo : email,
-            subject : "Verify email from Sneaker Store",
-            html : verifyEmailTemplate({
-                name,
-                url : VerifyEmailUrl
-            })
-        })
+        console.log("🟢 Sending OTP email...");
+        await sendEmail({
+            sendTo: email,
+            subject: "Your OTP Code for Sneaker Store",
+            html: emailContent
+        });
 
         return response.json({
-            message : "User register successfully",
-            error : false,
-            success : true,
-            data : save
-        })
+            message: "User registered successfully. Please check your email for OTP verification.",
+            error: false,
+            success: true,
+            userId: newUser._id // ✅ Trả về userId để FE sử dụng
+        });
 
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
 }
 
-export async function verifyEmailController(request,response){
+
+export async function verifyEmailController(request, response) {
     try {
-        const { code } = request.body
+        const { userId, otp } = request.body;
 
-        const user = await UserModel.findOne({ _id : code})
+        const user = await UserModel.findOne({ _id: userId, otp });
 
-        if(!user){
+        if (!user) {
             return response.status(400).json({
-                message : "Invalid code",
-                error : true,
-                success : false
-            })
+                message: "Invalid OTP",
+                data: { userId,otp},
+                error: true,
+                success: false
+            });
         }
 
-        const updateUser = await UserModel.updateOne({ _id : code },{
-            verify_email : true
-        })
+        // Kiểm tra xem OTP đã hết hạn chưa
+        if (user.otpExpiry < Date.now()) {
+            return response.status(400).json({
+                message: "OTP has expired. Please request a new one.",
+                error: true,
+                success: false
+            });
+        }
 
+        // Cập nhật trạng thái xác thực email
+        await UserModel.updateOne(
+            { _id: userId },
+            { verify_email: true, otp: null, otpExpiry: null }
+        );
+    console.log("🟢 Update OTP email...");
         return response.json({
-            message : "Verify email done",
-            success : true,
-            error : false
-        })
+            message: "Email verification successful!",
+            success: true,
+            error: false
+        });
+
     } catch (error) {
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : true
-        })
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
 }
+
 
 //login controller
 export async function loginController(request,response){
@@ -332,27 +359,31 @@ export async function forgotPasswordController(request,response) {
             })
         }
 
-        const otp = generatedOtp()
-        const expireTime = new Date() + 60 * 60 * 1000 // 1hr
+        const otp = otpGenerator.generate(6, { digits: true, upperCase: false, specialChars: false });
+        const expireTime = new Date() + 60  * 1000 // 1min
 
         const update = await UserModel.findByIdAndUpdate(user._id,{
             forgot_password_otp : otp,
             forgot_password_expiry : new Date(expireTime).toISOString()
         })
-
+        const emailContent = `
+            <h2>Hello ${user.name},</h2>
+            <p>Your OTP for reset password verification is: <strong>${otp}</strong></p>
+            <p>This OTP will expire in 1 minutes.</p>
+            <p>If you did not request this, please ignore this email.</p>
+        `;
+        console.log("🟢 Sending OTP email...");
         await sendEmail({
             sendTo : email,
             subject : "Forgot password from Sneaker Store",
-            html : forgotPasswordTemplate({
-                name : user.name,
-                otp : otp
-            })
+            html : emailContent
         })
+        
 
         return response.json({
             message : "check your email",
             error : false,
-            success : true
+            success : true,
         })
 
     } catch (error) {
@@ -367,9 +398,9 @@ export async function forgotPasswordController(request,response) {
 //verify forgot password otp
 export async function verifyForgotPasswordOtp(request,response){
     try {
-        const { email , otp }  = request.body
+        const { userId , otp }  = request.body
 
-        if(!email || !otp){
+        if(!userId || !otp){
             return response.status(400).json({
                 message : "Provide required field email, otp.",
                 error : true,
@@ -377,7 +408,7 @@ export async function verifyForgotPasswordOtp(request,response){
             })
         }
 
-        const user = await UserModel.findOne({ email })
+        const user = await UserModel.findOne({ _id: userId })
 
         if(!user){
             return response.status(400).json({
@@ -405,8 +436,8 @@ export async function verifyForgotPasswordOtp(request,response){
             })
         }
 
-        //if otp is not expired
-        //otp === user.forgot_password_otp
+        // if otp is not expired
+        // otp === user.forgot_password_otp
 
         const updateUser = await UserModel.findByIdAndUpdate(user?._id,{
             forgot_password_otp : "",
@@ -431,15 +462,15 @@ export async function verifyForgotPasswordOtp(request,response){
 //reset the password
 export async function resetpassword(request,response){
     try {
-        const { email , newPassword, confirmPassword } = request.body 
+        const { userId , newPassword} = request.body 
 
-        if(!email || !newPassword || !confirmPassword){
+        if(!userId || !newPassword ){
             return response.status(400).json({
-                message : "provide required fields email, newPassword, confirmPassword"
+                message : "provide required fields email, newPassword"
             })
         }
 
-        const user = await UserModel.findOne({ email })
+        const user = await UserModel.findOne({_id: userId })
 
         if(!user){
             return response.status(400).json({
@@ -449,13 +480,6 @@ export async function resetpassword(request,response){
             })
         }
 
-        if(newPassword !== confirmPassword){
-            return response.status(400).json({
-                message : "newPassword and confirmPassword must be same.",
-                error : true,
-                success : false,
-            })
-        }
 
         const salt = await bcryptjs.genSalt(10)
         const hashPassword = await bcryptjs.hash(newPassword,salt)

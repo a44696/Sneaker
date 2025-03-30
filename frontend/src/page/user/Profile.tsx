@@ -30,9 +30,11 @@ const Profile = () => {
   const [userEmail, setUserEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [openVerifyOtp, setOpenVerifyOtp] = useState(false);
   const [openChangePassword, setOpenChangePassword] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+   const [otp, setOtp] = useState("");
+    const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
@@ -42,26 +44,45 @@ const Profile = () => {
     setPhoneNumber(user?.mobile || ""); 
     setAddress(user?.address || ""); 
   }, []);
-  const handleChangePassword = async () => {
-    // try {
-    //   const response = await axios.put("http://localhost:8080/api/user/change-password", {
-    //     userId: user?._id,
-    //     oldPassword,
-    //     newPassword,
-    //   });
-
-    //   if (response.data.success) {
-    //     alert("Đổi mật khẩu thành công!");
-    //     setOpenChangePassword(false);
-    //     setOldPassword("");
-    //     setNewPassword("");
-    //   } else {
-    //     throw new Error(response.data.message || "Lỗi không xác định");
-    //   }
-    // } catch (err) {
-    //   console.error("Lỗi khi đổi mật khẩu:", err);
-    //   alert("Đổi mật khẩu thất bại! Vui lòng thử lại.");
-    // }
+  const handleOpenVerifyOtp = async () => {
+    setError(null);
+    try {
+      await axios.put("http://localhost:8080/api/user/forgot-password", { email: user?.email });
+      setOpenVerifyOtp(true);
+    } catch (err: any) {
+      alert(err.response.data.message)
+      setError(err.response?.data?.message || "err");
+    }
+  };
+  const handleVerifyOtp = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    try {
+       await axios.put("http://localhost:8080/api/user/verify-forgot-password-otp", { userId: user?._id, otp });
+      setOpenVerifyOtp(false);
+      setOtp("");
+      setOpenChangePassword(true);
+    } catch (err: any) {
+      alert(err.response.data.message)
+      setError(err.response?.data?.message || "Invalid OTP");
+    }
+  };
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    try {
+      const response = await axios.put("http://localhost:8080/api/user/reset-password", { userId: user?._id, newPassword });
+      if (response.data.success) {
+        alert("Đổi mật khẩu thành công!");
+        setOpenChangePassword(false);
+        setNewPassword("");
+      } else {
+        throw new Error(response.data.message || "Lỗi không xác định");
+      }
+    } catch (err) {
+      console.error("Lỗi khi đổi mật khẩu:", err);
+      alert("Đổi mật khẩu thất bại! Vui lòng thử lại.");
+    }
   };
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -170,48 +191,34 @@ const Profile = () => {
 
             {/* Nút Save */}
             <div className="grid grid-cols-2 gap-6 mt-6">
-             <Button onClick={() => setOpenChangePassword(true)} variant="contained" color="secondary" fullWidth>
+            <Button onClick={handleOpenVerifyOtp} variant="contained" color="secondary" fullWidth>
                 Change Password
               </Button>
               <Button onClick={handleSaveChanges} variant="contained" color="primary" fullWidth>
                 Save Changes
               </Button>
-             
-            </div>
-            
-            
+            </div>             
           </CardContent>
         </Card>
       </div>
+      <Dialog open={openVerifyOtp} onClose={() => setOpenVerifyOtp(false)}>
+        <DialogTitle>Verify OTP</DialogTitle>
+        <DialogContent>
+          <TextField label="Enter OTP" fullWidth variant="outlined" value={otp} onChange={(e) => setOtp(e.target.value)} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenVerifyOtp(false)} color="secondary">Cancel</Button>
+          <Button onClick={handleVerifyOtp} color="primary" variant="contained">Verify OTP</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={openChangePassword} onClose={() => setOpenChangePassword(false)}>
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Current Password"
-            type="password"
-            fullWidth
-            variant="outlined"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            margin="dense"
-          />
-          <TextField
-            label="New Password"
-            type="password"
-            fullWidth
-            variant="outlined"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            margin="dense"
-          />
+          <TextField label="New Password" type="password" fullWidth variant="outlined" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenChangePassword(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleChangePassword} color="primary" variant="contained">
-            Change Password
-          </Button>
+          <Button onClick={() => setOpenChangePassword(false)} color="secondary">Cancel</Button>
+          <Button onClick={handleChangePassword} color="primary" variant="contained">Change Password</Button>
         </DialogActions>
       </Dialog>
     </div>

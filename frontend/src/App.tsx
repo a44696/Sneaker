@@ -19,13 +19,10 @@ import CheckOutList from "./page/checkout/CheckOutList";
 import SearchResults from "./page/search/SearchResults";
 import AuthPage from "./page/auth/AuthPage";
 import SignInPage from "./page/auth/SignInPage";
-import ForgotPasswordPage from "./page/auth/ForgotPasswordPage";
-import VerifyOtpPage from "./page/auth/VerifyOtpPage";
-import ResetPasswordPage from "./page/auth/ResetPasswordPage";
-import VerifyEmailPage from "./page/auth/VerifyEmailPage";
 import UserProfile from "./page/user/Profile";
 import { useState } from "react";
 import HomePage from './page/home/Home.tsx';
+import VerifyOtp from './page/auth/VerifyOtpPage';
 import Order from './page/user/Order.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
@@ -49,10 +46,7 @@ import Order from './page/user/Order.tsx';
           </Route>
 
           {/* Các route authentication */}
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/verify-otp" element={<VerifyOtpPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/verify-otp/:userId" element={<VerifyOtp />} />
           <Route path="/payment-qr" element={<CreatePayment />} />
           <Route path="/payment-return" element={<VnpayReturn />} />
         </Routes>

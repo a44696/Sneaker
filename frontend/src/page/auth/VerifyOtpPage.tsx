@@ -1,57 +1,68 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
-const VerifyOtpPage: React.FC = () => {
+const VerifyOtp: React.FC = () => {
+  const { userId } = useParams<{ userId: string }>();
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  useEffect(() => {
+    // 🔥 Nếu không nhập OTP trong vòng 1 phút => Xóa tài khoản
+    const timer = setTimeout(async () => {
+      try {
+        await axios.delete(`http://localhost:8080/api/user/delete`, {
+          data: { _id: userId },
+        });
+        console.log("❌ Tài khoản bị xóa do không nhập OTP");
+        navigate("/register");
+      } catch (err) {
+        console.error("Lỗi khi xóa tài khoản:", err);
+      }
+    }, 60000); // 60 giây = 1 phút
+
+    return () => clearTimeout(timer); // Hủy timer nếu người dùng nhập OTP kịp
+  }, [userId, navigate]);
+
+  const handleVerifyOtp = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
 
     try {
-      const response = await fetch("http://localhost:8080/api/user/verify-forgot-password-otp", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp, email }),
+      const response = await axios.post("http://localhost:8080/api/user/verify-email", {
+        userId,
+        otp,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid OTP");
-      }
-
-      setSuccess(true);
-      navigate("/reset-password"); // Chuyển đến trang reset password
+      console.log("🟢 OTP Verified!", response.data);
+      navigate("/login"); // ✅ Điều hướng về trang chính sau khi xác minh thành công
     } catch (err: any) {
-      setError(err.message);
+      console.error("❌ OTP verification failed", err);
+      setError(err.response?.data?.message || "Invalid OTP");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold text-center text-gray-700">Verify OTP</h2>
-        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
-        <form onSubmit={handleSubmit} className="mt-4">
-          <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-medium mb-1">Enter OTP</label>
-            <input 
-              type="text" 
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" 
-              value={otp} 
+    <div className="flex justify-center items-center h-screen bg-white">
+      <div className="w-[400px]">
+        <h2 className="text-xl font-semibold text-center mb-4">Verify OTP</h2>
+
+        {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+
+        <form onSubmit={handleVerifyOtp} className="space-y-4">
+          <div>
+            <label className="block text-sm mb-1">Enter OTP *</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={otp}
               onChange={(e) => setOtp(e.target.value)}
               required
-              maxLength={6}
             />
           </div>
-          <button 
-            type="submit" 
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition duration-200"
-          >
+
+          <button type="submit" className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition duration-200">
             Verify OTP
           </button>
         </form>
@@ -60,4 +71,4 @@ const VerifyOtpPage: React.FC = () => {
   );
 };
 
-export default VerifyOtpPage;
+export default VerifyOtp;

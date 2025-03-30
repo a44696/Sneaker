@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const SignInPage: React.FC = () => {
   const [isRegister, setIsRegister] = useState(true);
@@ -8,26 +9,32 @@ const SignInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<React.ReactNode>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (event: React.FormEvent) => {
-    event.preventDefault(); // Ngăn trang bị reload khi submit
+    event.preventDefault();
     setError(null);
     setMessage(null);
+    setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/api/user/register', {
+      const response = await axios.post("http://localhost:8080/api/user/register", {
         name: username,
         email,
         password,
       });
 
-      setMessage("Registration successful! Please check your email to verify your account.");
-      console.log("Registration successful!", response.data);
+      console.log("🟢 Registration successful!", response.data);
+
+      const userId = response.data.userId;
+      navigate(`/verify-otp/${userId}`);
     } catch (err: any) {
-      console.error("Registration failed", err);
+      console.error("❌ Registration failed", err);
       setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,7 +43,10 @@ const SignInPage: React.FC = () => {
       <div className="w-[400px]">
         <div className="flex justify-center mb-6 space-x-4">
           <button
-            onClick={() => { setIsRegister(false); navigate("/login"); }}
+            onClick={() => {
+              setIsRegister(false);
+              navigate("/login");
+            }}
             className={`text-lg font-semibold ${!isRegister ? "text-black" : "text-gray-400"}`}
           >
             Login
@@ -54,7 +64,7 @@ const SignInPage: React.FC = () => {
         </p>
 
         {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
-        {message && <p className="text-green-500 text-sm text-center mb-2">{message}</p>} {/* Thêm thông báo thành công */}
+        {message && <p className="text-green-500 text-sm text-center mb-2">{message}</p>}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
@@ -92,11 +102,12 @@ const SignInPage: React.FC = () => {
             Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our <span className="text-purple-600 underline cursor-pointer">privacy policy</span>.
           </p>
 
-          <button
-            type="submit"
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition duration-200"
+          <button 
+            type="submit" 
+            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition duration-200 flex justify-center items-center"
+            disabled={loading}
           >
-            Register
+            {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Register"}
           </button>
         </form>
       </div>
