@@ -96,7 +96,7 @@ export async function registerUserController(request, response) {
         const emailContent = `
             <h2>Hello ${name},</h2>
             <p>Your OTP for email verification is: <strong>${otpCode}</strong></p>
-            <p>This OTP will expire in 10 minutes.</p>
+            <p>This OTP will expire in 1 minutes.</p>
             <p>If you did not request this, please ignore this email.</p>
         `;
 
@@ -360,7 +360,7 @@ export async function forgotPasswordController(request,response) {
         }
 
         const otp = otpGenerator.generate(6, { digits: true, upperCase: false, specialChars: false });
-        const expireTime = new Date() + 60  * 1000 // 1min
+        const expireTime = new Date(Date.now() + 1 * 60 * 1000);
 
         const update = await UserModel.findByIdAndUpdate(user._id,{
             forgot_password_otp : otp,

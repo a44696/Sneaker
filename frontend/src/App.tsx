@@ -20,13 +20,15 @@ import SearchResults from "./page/search/SearchResults";
 import AuthPage from "./page/auth/AuthPage";
 import SignInPage from "./page/auth/SignInPage";
 import UserProfile from "./page/user/Profile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HomePage from './page/home/Home.tsx';
 import VerifyOtp from './page/auth/VerifyOtpPage';
 import Order from './page/user/Order.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
-
+  useEffect (() => {
+    localStorage.clear();
+  }, [])
   return (
     <StrictMode>
       <Router>
