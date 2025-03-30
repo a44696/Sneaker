@@ -1,7 +1,7 @@
-import { List, Datagrid, TextField, NumberField, ShowButton,  DateField, EditButton, DeleteButton, SearchInput, TopToolbar, Pagination, FunctionField } from 'react-admin';
+import { List, Datagrid, TextField, NumberField,  DateField, EditButton, DeleteButton, SearchInput, TopToolbar, Pagination, FunctionField } from 'react-admin';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-
+import axios from 'axios';
 interface FieldProps {
     source: string;
     label?: string;
@@ -14,8 +14,29 @@ interface GenericListProps {
     fields: FieldProps[];
 }
 
-// Bộ lọc tìm kiếm
+const handleExport = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/order/export-excel', {
+            responseType: 'blob' // Quan trọng! Đảm bảo nhận dữ liệu dưới dạng file
+        });
 
+        // Tạo URL từ dữ liệu Blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'orders.xlsx'); // Đặt tên file khi tải về
+        document.body.appendChild(link);
+        link.click();
+
+        // Xóa URL sau khi tải xong
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Lỗi khi xuất file Excel:", error);
+    }
+};
+// const handleImport = () => {
+
+// }
 
 // Nút "Add New"
 const ListActions = ({ title, resource }: { title: string; resource: string }) => (
@@ -24,6 +45,16 @@ const ListActions = ({ title, resource }: { title: string; resource: string }) =
             <Button variant="contained" color="primary" component={Link} to={`/${resource}/create`}>
                 Add New {title}
             </Button>
+        )}
+        {['order'].includes(resource) && (
+            <>
+            <Button variant="contained" color="primary" onClick={handleExport} >
+                Export {title}
+            </Button>
+            {/* <Button variant="contained" color="primary" onClick={handleImport}>
+                Import {title}
+            </Button> */}
+            </>
         )}
     </TopToolbar>
 );

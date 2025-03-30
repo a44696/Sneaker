@@ -3,6 +3,13 @@ import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
+import path from "path";
+import fs from "fs";
+import ExcelJS from "exceljs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export async function createNewOrderController(request, response) {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -321,43 +328,56 @@ export const updateOrderStatus = async (request, response) => {
         });
     }
 };
-export const exportExcelOrder = async (request, response) => {
+export const exportExcelOrder = async (req, res) => {
     try {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Orders");
-        const [data, totalCount] = await Promise.all([
-            OrderModel.find().sort({ createdAt: -1 }), // Lấy danh sách order, sắp xếp giảm dần theo ngày tạo
-            OrderModel.countDocuments()          // Đếm tổng số đơn hàng (Nhưng `query` chưa định nghĩa!)
-        ]);
+
+        // Lấy danh sách order
+        const orders = await OrderModel.find().sort({ createdAt: -1 }).populate('products.productId userId');
+
         // Định nghĩa tiêu đề cột
         worksheet.columns = [
-          { header: "ID", key: "_id", width: 20 },
-          { header: "Tên", key: "name", width: 25 },
-          { header: "Email", key: "email", width: 30 },
-          { header: "Số điện thoại", key: "mobile", width: 15 },
-          { header: "Địa chỉ", key: "address", width: 40 },
+            { header: "Order ID", key: "orderId", width: 25 },
+            { header: "User Name", key: "userName", width: 25 },
+            { header: "Total Amount", key: "totalAmount", width: 15 },
+            { header: "Payment Method", key: "payment_method", width: 20 },
+            { header: "Payment Status", key: "payment_status", width: 15 },
+            { header: "Delivery Status", key: "delivery_status", width: 15 },
+            { header: "Created At", key: "createdAt", width: 25 },
+            { header: "Products", key: "products", width: 100 },
         ];
-    
-      
-        // Thêm dữ liệu vào file Excel
-        users.forEach((user) => {
-          worksheet.addRow(user);
+
+        // Thêm dữ liệu vào Excel
+        orders.forEach((order) => {
+            worksheet.addRow({
+                orderId: order.orderId,
+                userName: order.userId?.name || "Unknown",
+                totalAmount: order.totalAmt,
+                payment_method: order.payment_method,
+                payment_status: order.payment_status,
+                delivery_status: order.delivery_status,
+                createdAt: order.createdAt,
+                products: order.products.map(p => `(${p.productId.name}, Qty: ${p.quantity}, Size: ${p.size})`).join(" | ")
+            });
         });
-    
+
         // Ghi file Excel ra bộ nhớ
-        const filePath = path.join(__dirname, "users.xlsx");
+        const filePath = path.join(__dirname, "orders.xlsx");
         await workbook.xlsx.writeFile(filePath);
-    
+
         // Gửi file về client
-        res.download(filePath, "users.xlsx", (err) => {
-          if (err) {
-            console.error("Lỗi tải file:", err);
-            res.status(500).send("Lỗi tải file");
-          }
-          fs.unlinkSync(filePath); // Xóa file sau khi gửi
+        res.download(filePath, "orders.xlsx", (err) => {
+            if (err) {
+                console.error("Lỗi tải file:", err);
+                res.status(500).send("Lỗi tải file");
+            }
+            fs.unlinkSync(filePath); // Xóa file sau khi gửi
         });
-      } catch (err) {
+
+    } catch (err) {
         console.error("Lỗi xuất Excel:", err);
-        res.status(500).send("Lỗi hệ thống");
-      }
+        res.status(500).json({ error: "Lỗi hệ thống" }); // ✅ Đúng
+
+    }
 }

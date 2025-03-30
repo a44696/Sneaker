@@ -62,6 +62,7 @@ const fetchGetList = async (resource: string, params: any) => {
                     };
                 })
             );
+            console.log(customData);
         } else {
             customData = json.data.map((item: any) => ({
                 ...item,
