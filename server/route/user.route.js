@@ -16,7 +16,7 @@ userRouter.put('/forgot-password',forgotPasswordController)
 userRouter.put('/verify-forgot-password-otp',verifyForgotPasswordOtp)
 userRouter.put('/reset-password',resetpassword)
 userRouter.post('/refresh-token',refreshToken)
-userRouter.delete('/delete',auth,deleteUserDetails)
+userRouter.delete('/delete',deleteUserDetails)
 userRouter.put('/update-profile', updateUserProfile)
 userRouter.put('/change-password',auth,changePasswordController)
 export default userRouter

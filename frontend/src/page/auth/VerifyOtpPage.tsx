@@ -9,7 +9,7 @@ const VerifyOtp: React.FC = () => {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
+console.log(userId)
   useEffect(() => {
     // 🔥 Nếu không nhập OTP trong vòng 1 phút => Xóa tài khoản
     const timer = setTimeout(async () => {

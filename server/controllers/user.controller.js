@@ -126,14 +126,14 @@ export async function registerUserController(request, response) {
 
 export async function verifyEmailController(request, response) {
     try {
-        const { userId, otp } = request.body;
+        const { email, otp } = request.body;
 
-        const user = await UserModel.findOne({ _id: userId, otp });
+        const user = await UserModel.findOne({ email: email, otp });
 
         if (!user) {
             return response.status(400).json({
                 message: "Invalid OTP",
-                data: { userId,otp},
+                data: { email,otp},
                 error: true,
                 success: false
             });
@@ -150,7 +150,7 @@ export async function verifyEmailController(request, response) {
 
         // Cập nhật trạng thái xác thực email
         await UserModel.updateOne(
-            { _id: userId },
+            { email: email },
             { verify_email: true, otp: null, otpExpiry: null }
         );
     console.log("🟢 Update OTP email...");
