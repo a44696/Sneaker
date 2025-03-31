@@ -23,7 +23,8 @@ interface ProductDetail {
     _id: string;                // ID của sản phẩm
     name: string;               // Tên sản phẩm
     price: number;              // Giá sản phẩm
-    discount?: number;          // Chiết khấu (có thể có hoặc không)
+    discount?: number;  
+    delivery_address: string;        // Chiết khấu (có thể có hoặc không)
     stock: number;              // Số lượng hàng trong kho
     description: string;        // Mô tả sản phẩm
     category: string[];         // Danh mục (danh sách ID)
@@ -109,7 +110,7 @@ const CheckOutList: React.FC = () => {
       address: "",
       name: "",
       email: "",
-      phoneNumber: "",
+      mobile: "",
     };
     
     if (user) {
@@ -120,7 +121,7 @@ const CheckOutList: React.FC = () => {
           address: parsedUser.address || "",
           name: parsedUser.name || "",
           email: parsedUser.email || "",
-          phoneNumber: parsedUser.mobile || "",
+          mobile: parsedUser.mobile || "",
         };
       } catch (error) {
         console.error("Failed to parse user data from localStorage:", error);
@@ -130,7 +131,7 @@ const CheckOutList: React.FC = () => {
       ...prev,
       Name: userData.name,
       address: userData.address,
-      phone: userData.phoneNumber,
+      phone: userData.mobile,
       email: userData.email,
 
     }));

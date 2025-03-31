@@ -45,7 +45,11 @@ const GenericForm = ({ fields, resource }: { fields: any[]; resource: string }) 
                             />
                         );
                     }
-
+                    if (resource === "user" && field.source === "email") {
+                        return (
+                            <TextInput key={field.source} source={field.source} label={field.label} disabled/>
+                        );
+                    }
                     // Hiển thị SelectInput cho status nếu resource là user
                     if (resource === "user" && field.source === "status") {
                         return (

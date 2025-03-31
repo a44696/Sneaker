@@ -17,16 +17,21 @@ import dayjs from "dayjs"; // npm install dayjs
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [totalEarning, setTotalEarning] = useState(0);
+  const [customerCount, setCustomerCount] = useState(0);
   const [chartData, setChartData] = useState([]);
 
   const fetchOrder = async () => {
     try {
       const response = await axios.get("http://localhost:8080/api/order/get-order-list");
+      const Userresponse = await axios.post("http://localhost:8080/api/user/get");
+      
       const orderData = response.data.data;
-
       setOrders(orderData);
-
+      setUsers(Userresponse.data.data)
+      
+      setCustomerCount(Userresponse.data.data.filter(user => user.role === "CUSTOMER").length);
       // Tính toán Total Earning
       const totalEarning = orderData.reduce((sum, order) => sum + (order.totalAmt || 0), 0);
       setTotalEarning(totalEarning);
@@ -98,7 +103,7 @@ const Dashboard = () => {
                 Customers
               </Typography>
               <Typography variant="h4" fontWeight="bold">
-                {chartData.reduce((sum, item) => sum + item.customers, 0)}
+                {customerCount}
               </Typography>
              
             </Card>

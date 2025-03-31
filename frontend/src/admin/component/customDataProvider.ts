@@ -183,7 +183,7 @@ const customDataProvider: DataProvider = {
         try {
             const token = localStorage.getItem("accessToken");
             const response = await axios.post(`${apiUrl}/${resource}/create`, 
-                { ...params.data, image: [], category: [] },
+                { ...params.data, image: [] },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             return { data: { ...response.data, id: response.data._id || response.data.id } };

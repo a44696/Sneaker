@@ -15,7 +15,7 @@ export async function createNewOrderController(request, response) {
     session.startTransaction();
     
     try {
-        const { userId, products, totalAmt, payment_method, address } = request.body;
+        const { userId, products, totalAmt, payment_method, delivery_address } = request.body;
 
         if (!userId || !products || products.length === 0) {
             return response.status(400).json({
@@ -33,7 +33,7 @@ export async function createNewOrderController(request, response) {
             payment_method: payment_method,
             payment_status: "Pending",
             delivery_status: "Pending",
-            delivery_address: address || "",
+            delivery_address: delivery_address || "",
             subTotalAmt: totalAmt,
             totalAmt,
         };
@@ -256,7 +256,7 @@ export const deleteOrderDetails = async (request, response) => {
 
 export const updateOrderDetails = async(request,response)=>{
     try {
-    
+        const { id } = request.body;
 
         if(!id){
             return response.status(400).json({
