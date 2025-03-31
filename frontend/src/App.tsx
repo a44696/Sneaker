@@ -29,7 +29,6 @@ import ResetPasswordPage from './page/auth/ResetPasswordPage.tsx';
 import VerifyOtpLossPW from './page/auth/VerifyOtpLossPW.tsx';
  export default function App() {
   const [search, setSearch] = useState("");
-
   return (
     <StrictMode>
       <Router>

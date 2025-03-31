@@ -114,7 +114,7 @@ const HomePage = () => {
               component="img"
               image={product.image[0]}
               alt={product.name}
-              className="h-32 w-auto object-contain"
+              className="h-32 w-auto !object-fill"
             />
             {product.discount > 0 && (
               <Chip
@@ -334,7 +334,7 @@ const HomePage = () => {
       <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="flex items-center h-full">
         {/* Hình ảnh sản phẩm */}
         <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-1/3 flex justify-center">
-          <img src={product.image[0]} alt={product.name} className=" object-contain" />
+          <img src={product.image[0]} alt={product.name} className=" !object-fill" />
         </motion.div>
         
         {/* Nội dung sản phẩm */}
@@ -372,7 +372,7 @@ const HomePage = () => {
       <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="flex items-center h-full">
         {/* Hình ảnh sản phẩm */}
         <motion.div initial="hidden" whileInView="visible" variants={fadeInVariant} className="w-1/3 flex justify-center">
-          <img src={product.image[0]} alt={product.name} className=" object-contain" />
+          <img src={product.image[0]} alt={product.name} className=" !object-fill" />
         </motion.div>
 
         {/* Nội dung sản phẩm */}
@@ -463,7 +463,7 @@ const HomePage = () => {
                        component="img"
                        image={product.image[0]}
                        alt={product.name}
-                       className="h-32 w-auto object-contain"
+                       className="h-32 w-auto !object-fill"
                      />
                      {product.discount > 0 && (
                        <Chip
@@ -546,7 +546,7 @@ const HomePage = () => {
                        component="img"
                        image={product.image[0]}
                        alt={product.name}
-                       className="h-32 w-auto object-contain"
+                       className="h-32 w-auto !object-fill"
                      />
                      {product.discount > 0 && (
                        <Chip

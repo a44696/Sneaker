@@ -14,7 +14,7 @@ import cartRouter from './route/cart.route.js'
 import orderRouter from './route/order.route.js'
 import reviewRouter from './route/review.route.js'
 import paymentRoute from './route/payment.route.js'
-
+import chatRouter from './route/chat.route.js'
 const app = express()
 app.use(cors({
     credentials: true,
@@ -45,7 +45,7 @@ app.use("/api/cart",cartRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/review',reviewRouter)
 app.use('/api/payment',paymentRoute)
-
+app.use('/api/chat',chatRouter)
 connectDB().then(()=>{
     app.listen(PORT,()=>{
         console.log("Server is running",PORT)
