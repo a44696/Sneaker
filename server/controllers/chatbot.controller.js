@@ -46,16 +46,20 @@ export async function generateText(req, res) {
 
 
         // Tạo prompt với thông tin sản phẩm truy xuất được
-        const prompt = `Bạn là một trợ lý AI chuyên về bán hàng. Hãy trả lời câu hỏi của khách hàng một cách tự nhiên và thân thiện.
+        let prompt;
+        if (foundProducts.length === 0){
+            prompt = message
+        }else{
+            prompt = `Bạn là một trợ lý AI chuyên về bán hàng. Hãy trả lời câu hỏi của khách hàng một cách tự nhiên và thân thiện.
         Nếu câu hỏi liên quan đến sản phẩm, hãy tham khảo danh sách sản phẩm dưới đây:
         ${productInfo}
         
         Câu hỏi của khách hàng: "${message}"`;
-
+        }
         // Gọi model AI
         const response = await ai.models.generateContentStream({
             model: "gemini-2.0-flash",
-            contents: message 
+            contents: prompt 
         });
 
         let reply = "";
